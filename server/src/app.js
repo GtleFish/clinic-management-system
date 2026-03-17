@@ -1,3 +1,15 @@
+require('dotenv').config();
+const express = require('express');
+
+app.use(express.json());
+
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok' });
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}`);
+});
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
