@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom';
 import { Calendar, Shield, Clock, Users, ArrowRight, Star } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from '../components/ui/button';
 import { motion } from 'framer-motion';
-import { departments, doctors } from '@/data/mockData';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
+import { departments, doctors } from '../data/mockData';
+import Header from '../components/layout/Header';
+import Footer from '../components/layout/Footer';
 
 const features = [
   { icon: Calendar, title: 'Đặt lịch dễ dàng', desc: 'Chọn khoa, bác sĩ và thời gian phù hợp chỉ trong vài bước' },
@@ -20,8 +20,11 @@ const Index = () => {
 
       {/* Hero */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 gradient-hero opacity-[0.03]" />
-        <div className="container mx-auto px-4 py-20 md:py-28">
+        {/* FIX 1: Thêm pointer-events-none để lớp nền không chặn chuột */}
+        <div className="absolute inset-0 gradient-hero opacity-[0.03] pointer-events-none" />
+        
+        {/* FIX 2: Thêm relative z-10 để nội dung nổi lên trên cùng */}
+        <div className="container relative z-10 mx-auto px-4 py-20 md:py-28">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -41,14 +44,20 @@ const Index = () => {
               Kết nối với đội ngũ bác sĩ chuyên khoa hàng đầu. Đặt lịch, khám bệnh, nhận đơn thuốc — tất cả trong một nền tảng.
             </p>
             <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-              <Link to="/booking">
-                <Button size="lg" className="gradient-primary text-primary-foreground gap-2 px-8 shadow-hero">
+              
+              {/* FIX 3: Sử dụng thuộc tính "asChild" của Shadcn UI Button */}
+              <Button asChild size="lg" className="gradient-primary text-primary-foreground gap-2 px-8 shadow-hero">
+                <Link to="/booking">
                   Đặt lịch ngay <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
-              <Link to="/departments">
-                <Button size="lg" variant="outline">Xem khoa khám</Button>
-              </Link>
+                </Link>
+              </Button>
+
+              <Button asChild size="lg" variant="outline">
+                <Link to="/departments">
+                  Xem khoa khám
+                </Link>
+              </Button>
+
             </div>
           </motion.div>
         </div>

@@ -9,6 +9,7 @@ const navItems = [
   { label: 'Đặt lịch khám', path: '/booking' },
   { label: 'Khoa khám', path: '/departments' },
   { label: 'Lịch sử khám', path: '/history' },
+  { label: 'Quản lý bệnh nhân', path: '/staff/patients' },
 ];
 
 const Header = () => {
