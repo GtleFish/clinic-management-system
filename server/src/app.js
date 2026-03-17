@@ -8,9 +8,14 @@ const InMemoryRepository = require("./repositories/inMemoryRepository");
 
 const PatientRoutes = require("./routes/PatientRoutes");
 
-const app = express();
 
 app.use(cors());
+require('dotenv').config();
+const express = require('express');
+const cors    = require('cors');
+const app = express();
+
+app.use(cors({ origin: '*' }));
 app.use(express.json());
 
 app.get("/health", (req, res) => {
@@ -42,3 +47,5 @@ app.listen(PORT, () => {
 
 const authRoutes = require("./routes/AuthRoutes");
 app.use("/api/auth", authRoutes);
+const adminRoutes = require('./routes/admin');
+app.use('/api/admin', adminRoutes);

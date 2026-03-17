@@ -14,6 +14,8 @@ import DepartmentsPage from "./pages/DepartmentsPage";
 import RegisterPatientPage from "./pages/RegisterPage";
 import ProfilePage from "./pages/ProfilePage";
 <Route path="/register-patient" element={<RegisterPatientPage />} />
+import QuanLyTaiKhoan from './pages/admin/QuanLyTaiKhoan';
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -32,6 +34,8 @@ const App = () => (
           <Route path="/departments" element={<DepartmentsPage />} />
           <Route path="*" element={<NotFound />} />
           <Route path="/profile" element={<ProfilePage />} />
+
+          <Route path="/admin/doctors" element={<QuanLyTaiKhoan />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
