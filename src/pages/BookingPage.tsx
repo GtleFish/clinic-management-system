@@ -1,16 +1,20 @@
 import { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Calendar, Check, CreditCard, ArrowLeft, ArrowRight, Star } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from '../components/ui/button';
 import { motion } from 'framer-motion';
-import { departments, doctors, timeSlots } from '@/data/mockData';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
+import { departments, doctors, timeSlots } from '../data/mockData';
+import Header from '../components/layout/Header';
+import Footer from '../components/layout/Footer';
+import { useToast } from '../hooks/use-toast';
 
 const steps = ['Chọn khoa', 'Chọn bác sĩ', 'Chọn thời gian', 'Xác nhận & Cọc'];
 
 const BookingPage = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
   const initialDept = searchParams.get('dept') || '';
   const [step, setStep] = useState(initialDept ? 1 : 0);
   const [selectedDepts, setSelectedDepts] = useState<string[]>(initialDept ? [initialDept] : []);
@@ -36,6 +40,42 @@ const BookingPage = () => {
     if (step === 1) return selectedDoctors.length > 0;
     if (step === 2) return selectedDate && selectedTime;
     return true;
+  };
+// PHÁT TRIỂN THÊM: Hàm xử lý thanh toán và hoàn tất
+  const handlePaymentAndConfirm = () => {
+    
+    // 1. Tạo object lịch khám mới từ dữ liệu người dùng đã chọn
+    const newAppointment = {
+      id: `apt-new-${Date.now()}`,
+      patientName: 'Bệnh nhân của bạn',
+      doctorId: selectedDoctorData[0]?.id || '',
+      // Ghép tên các bác sĩ đã chọn
+      doctorName: selectedDoctorData.map(d => `${d.title} ${d.name.replace('BS. ', '')}`).join(', '),
+      // Lấy tên khoa
+      departmentName: selectedDoctorData.map(d => d.departmentName).join(', '),
+      date: selectedDate,
+      time: selectedTime,
+      status: 'pending', // Trạng thái mặc định là: Chờ xác nhận
+      deposit: deposit,
+      totalFee: totalFee,
+      notes: 'Lịch khám được tạo trực tuyến.'
+    };
+
+    // 2. Lưu vào localStorage để HistoryPage có thể đọc được
+    const existingApts = JSON.parse(localStorage.getItem('new_appointments') || '[]');
+    localStorage.setItem('new_appointments', JSON.stringify([newAppointment, ...existingApts]));
+
+    // 3. Hiện thông báo thành công
+    toast({
+      title: 'Thanh toán & Đặt lịch thành công!',
+      description: 'Hệ thống đã ghi nhận lịch khám của bạn. Đang chuyển hướng...',
+      className: 'bg-primary text-primary-foreground border-none',
+    });
+    
+    // 4. Chuyển hướng về trang lịch sử khám sau 1.5 giây
+    setTimeout(() => {
+      navigate('/history');
+    }, 1500);
   };
 
   return (
@@ -188,7 +228,9 @@ const BookingPage = () => {
                   <span className="font-bold text-primary">{deposit.toLocaleString('vi-VN')}đ</span>
                 </div>
               </div>
-              <Button className="mt-6 w-full gradient-primary text-primary-foreground gap-2" size="lg">
+              
+              {/* PHÁT TRIỂN THÊM: Gắn sự kiện onClick vào nút */}
+              <Button onClick={handlePaymentAndConfirm} className="mt-6 w-full gradient-primary text-primary-foreground gap-2" size="lg">
                 <CreditCard className="h-4 w-4" /> Thanh toán cọc & Xác nhận
               </Button>
             </div>
