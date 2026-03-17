@@ -1,15 +1,3 @@
-require('dotenv').config();
-const express = require('express');
-
-app.use(express.json());
-
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
-});
-
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-});
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
@@ -19,21 +7,20 @@ const CrudServiceClinic = require("./services/crudServiceClinic");
 const InMemoryRepository = require("./repositories/inMemoryRepository");
 
 const PatientRoutes = require("./routes/PatientRoutes");
+const authRoutes = require("./routes/AuthRoutes");
+const adminRoutes = require("./routes/admin");
 
-
-app.use(cors());
-require('dotenv').config();
-const express = require('express');
-const cors    = require('cors');
 const app = express();
 
-app.use(cors({ origin: '*' }));
+app.use(cors({ origin: "*" }));
 app.use(express.json());
 
+// health check
 app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
+// init service
 const repository = new InMemoryRepository();
 
 const clinicService = new CrudServiceClinic({
@@ -41,9 +28,13 @@ const clinicService = new CrudServiceClinic({
   idField: "id",
 });
 
+// routes
 app.use("/api/clinic", buildCrudRouter(clinicService));
 app.use("/api/benhnhan", PatientRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/admin", adminRoutes);
 
+// error handler
 app.use((err, req, res, next) => {
   console.error(err);
   res.status(err.status || 500).json({
@@ -56,8 +47,3 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
-
-const authRoutes = require("./routes/AuthRoutes");
-app.use("/api/auth", authRoutes);
-const adminRoutes = require('./routes/admin');
-app.use('/api/admin', adminRoutes);
