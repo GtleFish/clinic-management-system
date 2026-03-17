@@ -11,6 +11,7 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import BookingPage from "./pages/BookingPage";
 import HistoryPage from "./pages/HistoryPage";
 import DepartmentsPage from "./pages/DepartmentsPage";
+import QuanLyTaiKhoan from './pages/admin/QuanLyTaiKhoan';
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,8 @@ const App = () => (
           <Route path="/history" element={<HistoryPage />} />
           <Route path="/departments" element={<DepartmentsPage />} />
           <Route path="*" element={<NotFound />} />
+
+          <Route path="/admin/doctors" element={<QuanLyTaiKhoan />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
