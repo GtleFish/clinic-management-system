@@ -1,111 +1,253 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Mail, Lock, Eye, EyeOff, User, Phone } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { motion } from 'framer-motion';
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { Mail, Lock, Eye, EyeOff, User, Phone, CreditCard } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { motion } from "framer-motion";
+import { registerPatient } from "@/lib/apiPatient";
 
 const RegisterPage = () => {
+
   const [showPassword, setShowPassword] = useState(false);
-  const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
 
-  const handleChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm((prev) => ({ ...prev, [field]: e.target.value }));
-  };
+  const [form, setForm] = useState({
+    hoTen: "",
+    cccd: "",
+    gioiTinh: "",
+    ngaySinh: "",
+    gmail: "",
+    sdt: "",
+    soBaoHiem: "",
+    benhNen: "",
+    password: "",
+    confirmPassword: ""
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleChange =
+    (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      setForm((prev) => ({ ...prev, [field]: e.target.value }));
+    };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Register:', form);
+
+    if (form.password !== form.confirmPassword) {
+      alert("Mật khẩu không khớp");
+      return;
+    }
+
+    try {
+
+      const data = {
+        hoTen: form.hoTen,
+        cccd: form.cccd,
+        gioiTinh: form.gioiTinh,
+        ngaySinh: form.ngaySinh,
+        gmail: form.gmail,
+        sdt: form.sdt,
+        soBaoHiem: form.soBaoHiem,
+        benhNen: form.benhNen,
+        password: form.password 
+      };
+
+      await registerPatient(data);
+
+      alert("Đăng ký thành công");
+
+      setForm({
+        hoTen: "",
+        cccd: "",
+        gioiTinh: "",
+        ngaySinh: "",
+        gmail: "",
+        sdt: "",
+        soBaoHiem: "",
+        benhNen: "",
+        password: "",
+        confirmPassword: ""
+      });
+
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        alert(error.message);
+      } else {
+        alert("Đăng ký thất bại");
+      }
+      console.error(error);
+    }
   };
 
   return (
     <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-12">
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         className="w-full max-w-md"
       >
+
         <div className="rounded-2xl border border-border bg-card p-8 shadow-elevated">
+
           <div className="mb-8 text-center">
-            <h1 className="text-2xl font-bold font-heading">Đăng ký tài khoản</h1>
+            <h1 className="text-2xl font-bold font-heading">
+              Đăng ký bệnh nhân
+            </h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              Tạo tài khoản để đặt lịch khám nhanh chóng
+              Nhập hồ sơ để đặt lịch khám
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Họ và tên</Label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input id="name" placeholder="Nguyễn Văn A" className="pl-10" value={form.name} onChange={handleChange('name')} required />
-              </div>
-            </div>
 
+            {/* Họ tên */}
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label>Họ và tên</Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input id="email" type="email" placeholder="your@email.com" className="pl-10" value={form.email} onChange={handleChange('email')} required />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="phone">Số điện thoại</Label>
-              <div className="relative">
-                <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input id="phone" type="tel" placeholder="0901 234 567" className="pl-10" value={form.phone} onChange={handleChange('phone')} required />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password">Mật khẩu</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"/>
                 <Input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="••••••••"
-                  className="pl-10 pr-10"
-                  value={form.password}
-                  onChange={handleChange('password')}
+                  placeholder="Nguyễn Văn A"
+                  className="pl-10"
+                  value={form.hoTen}
+                  onChange={handleChange("hoTen")}
                   required
                 />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </div>
+            </div>
+
+            {/* CCCD */}
+            <div className="space-y-2">
+              <Label>CCCD</Label>
+              <div className="relative">
+                <CreditCard className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"/>
+                <Input
+                  placeholder="0123456789"
+                  className="pl-10"
+                  value={form.cccd}
+                  onChange={handleChange("cccd")}
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Giới tính */}
+            <div className="space-y-2">
+              <Label>Giới tính</Label>
+              <Input
+                placeholder="Nam / Nữ"
+                value={form.gioiTinh}
+                onChange={handleChange("gioiTinh")}
+                required
+              />
+            </div>
+
+            {/* Ngày sinh */}
+            <div className="space-y-2">
+              <Label>Ngày sinh</Label>
+              <Input
+                type="date"
+                value={form.ngaySinh}
+                onChange={handleChange("ngaySinh")}
+                required
+              />
+            </div>
+
+            {/* Email */}
+            <div className="space-y-2">
+              <Label>Email</Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"/>
+                <Input
+                  type="email"
+                  className="pl-10"
+                  value={form.gmail}
+                  onChange={handleChange("gmail")}
+                />
+              </div>
+            </div>
+
+            {/* SĐT */}
+            <div className="space-y-2">
+              <Label>Số điện thoại</Label>
+              <div className="relative">
+                <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"/>
+                <Input
+                  className="pl-10"
+                  value={form.sdt}
+                  onChange={handleChange("sdt")}
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Số bảo hiểm */}
+            <div className="space-y-2">
+              <Label>Số bảo hiểm</Label>
+              <Input
+                value={form.soBaoHiem}
+                onChange={handleChange("soBaoHiem")}
+              />
+            </div>
+
+            {/* Bệnh nền */}
+            <div className="space-y-2">
+              <Label>Bệnh nền</Label>
+              <Input
+                value={form.benhNen}
+                onChange={handleChange("benhNen")}
+              />
+            </div>
+
+            {/* Password */}
+            <div className="space-y-2">
+              <Label>Mật khẩu</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"/>
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  className="pl-10 pr-10"
+                  value={form.password}
+                  onChange={handleChange("password")}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2"
+                >
+                  {showPassword ? <EyeOff size={18}/> : <Eye size={18}/>}
                 </button>
               </div>
             </div>
 
+            {/* Confirm password */}
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Xác nhận mật khẩu</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  placeholder="••••••••"
-                  className="pl-10"
-                  value={form.confirmPassword}
-                  onChange={handleChange('confirmPassword')}
-                  required
-                />
-              </div>
+              <Label>Xác nhận mật khẩu</Label>
+              <Input
+                type="password"
+                value={form.confirmPassword}
+                onChange={handleChange("confirmPassword")}
+                required
+              />
             </div>
 
-            <Button type="submit" className="w-full gradient-primary text-primary-foreground">
+            <Button
+              type="submit"
+              className="w-full gradient-primary text-primary-foreground"
+            >
               Đăng ký
             </Button>
+
           </form>
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
-            Đã có tài khoản?{' '}
+            Đã có tài khoản?{" "}
             <Link to="/login" className="font-medium text-primary hover:underline">
               Đăng nhập
             </Link>
           </p>
+
         </div>
       </motion.div>
     </div>

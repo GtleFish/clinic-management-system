@@ -15,7 +15,7 @@ const Header = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
   // Mock auth state
-  const [isLoggedIn] = useState(true);
+  const isLoggedIn = !!localStorage.getItem("token");
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-card/80 backdrop-blur-xl">
@@ -53,11 +53,15 @@ const Header = () => {
                   Tài khoản
                 </Button>
               </Link>
-              <Link to="/login">
-                <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground">
-                  <LogOut className="h-4 w-4" />
-                </Button>
-              </Link>
+              <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground" onClick={() => {
+                  localStorage.removeItem("token");
+                  localStorage.removeItem("user");
+                  localStorage.removeItem("patientProfile");
+                  window.location.href = "/login";
+                }}
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
             </>
           ) : (
             <>
