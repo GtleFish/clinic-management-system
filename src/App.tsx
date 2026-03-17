@@ -14,7 +14,10 @@ import DepartmentsPage from "./pages/DepartmentsPage";
 import RegisterPatientPage from "./pages/RegisterPage";
 import ProfilePage from "./pages/ProfilePage";
 <Route path="/register-patient" element={<RegisterPatientPage />} />
+
 import QuanLyTaiKhoan from './pages/admin/QuanLyTaiKhoan';
+import QuanLyBenhNhan from './pages/employee/QuanLyBenhNhan';
+import TaoLichKham    from './pages/employee/TaoLichKham';
 
 const queryClient = new QueryClient();
 
@@ -36,6 +39,9 @@ const App = () => (
           <Route path="/profile" element={<ProfilePage />} />
 
           <Route path="/admin/doctors" element={<QuanLyTaiKhoan />} />
+
+          <Route path="/employee/patients"     element={<QuanLyBenhNhan />} />
+          <Route path="/employee/appointments" element={<TaoLichKham />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
