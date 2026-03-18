@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import LoginPage from "./pages/LoginPage";
@@ -11,13 +12,11 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import BookingPage from "./pages/BookingPage";
 import HistoryPage from "./pages/HistoryPage";
 import DepartmentsPage from "./pages/DepartmentsPage";
-import RegisterPatientPage from "./pages/RegisterPage";
 import ProfilePage from "./pages/ProfilePage";
-<Route path="/register-patient" element={<RegisterPatientPage />} />
 
-import QuanLyTaiKhoan from './pages/admin/QuanLyTaiKhoan';
-import QuanLyBenhNhan from './pages/employee/QuanLyBenhNhan';
-import TaoLichKham    from './pages/employee/TaoLichKham';
+import QuanLyTaiKhoan from "./pages/admin/QuanLyTaiKhoan";
+import QuanLyBenhNhan from "./pages/employee/QuanLyBenhNhan";
+import TaoLichKham    from "./pages/employee/TaoLichKham";
 
 const queryClient = new QueryClient();
 
@@ -28,20 +27,27 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="/booking" element={<BookingPage />} />
-          <Route path="/history" element={<HistoryPage />} />
-          <Route path="/departments" element={<DepartmentsPage />} />
-          <Route path="*" element={<NotFound />} />
-          <Route path="/profile" element={<ProfilePage />} />
+          {/* Public */}
+          <Route path="/"                      element={<Index />} />
+          <Route path="/login"                 element={<LoginPage />} />
+          <Route path="/register"              element={<RegisterPage />} />
+          <Route path="/forgot-password"       element={<ForgotPasswordPage />} />
+          <Route path="/departments"           element={<DepartmentsPage />} />
 
-          <Route path="/admin/doctors" element={<QuanLyTaiKhoan />} />
+          {/* Bệnh nhân */}
+          <Route path="/booking"               element={<BookingPage />} />
+          <Route path="/history"               element={<HistoryPage />} />
+          <Route path="/profile"               element={<ProfilePage />} />
 
+          {/* Admin */}
+          <Route path="/admin/doctors"         element={<QuanLyTaiKhoan />} />
+
+          {/* Nhân viên */}
           <Route path="/employee/patients"     element={<QuanLyBenhNhan />} />
           <Route path="/employee/appointments" element={<TaoLichKham />} />
+
+          {/* 404 — luôn đặt cuối */}
+          <Route path="*"                      element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
@@ -49,4 +55,3 @@ const App = () => (
 );
 
 export default App;
-
