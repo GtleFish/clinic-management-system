@@ -1,16 +1,20 @@
 import { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Calendar, Check, CreditCard, ArrowLeft, ArrowRight, Star } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from '../components/ui/button';
 import { motion } from 'framer-motion';
-import { departments, doctors, timeSlots } from '@/data/mockData';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
+import { departments, doctors, timeSlots } from '../data/mockData';
+import Header from '../components/layout/Header';
+import Footer from '../components/layout/Footer';
+import { useToast } from '../hooks/use-toast';
 
 const steps = ['Chọn khoa', 'Chọn bác sĩ', 'Chọn thời gian', 'Xác nhận & Cọc'];
 
 const BookingPage = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
   const initialDept = searchParams.get('dept') || '';
   const [step, setStep] = useState(initialDept ? 1 : 0);
   const [selectedDepts, setSelectedDepts] = useState<string[]>(initialDept ? [initialDept] : []);
@@ -38,6 +42,35 @@ const BookingPage = () => {
     return true;
   };
 
+  const handlePaymentAndConfirm = () => {
+    const newAppointment = {
+      id: `apt-new-${Date.now()}`,
+      patientName: 'Bệnh nhân của bạn',
+      doctorId: selectedDoctorData[0]?.id || '',
+      doctorName: selectedDoctorData.map(d => `${d.title} ${d.name.replace('BS. ', '')}`).join(', '),
+      departmentName: selectedDoctorData.map(d => d.departmentName).join(', '),
+      date: selectedDate,
+      time: selectedTime,
+      status: 'pending',
+      deposit: deposit,
+      totalFee: totalFee,
+      notes: 'Lịch khám được tạo trực tuyến.'
+    };
+
+    const existingApts = JSON.parse(localStorage.getItem('new_appointments') || '[]');
+    localStorage.setItem('new_appointments', JSON.stringify([newAppointment, ...existingApts]));
+
+    toast({
+      title: 'Thanh toán & Đặt lịch thành công!',
+      description: 'Hệ thống đã ghi nhận lịch khám của bạn. Đang chuyển hướng...',
+      className: 'bg-primary text-primary-foreground border-none',
+    });
+    
+    setTimeout(() => {
+      navigate('/history');
+    }, 1500);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -60,7 +93,7 @@ const BookingPage = () => {
         </div>
 
         <motion.div key={step} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }}>
-          {/* Step 0: Departments */}
+          {/* Step 0 */}
           {step === 0 && (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {departments.map((dept) => (
@@ -84,7 +117,7 @@ const BookingPage = () => {
             </div>
           )}
 
-          {/* Step 1: Doctors */}
+          {/* Step 1 */}
           {step === 1 && (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {filteredDoctors.map((doc) => (
@@ -126,7 +159,7 @@ const BookingPage = () => {
             </div>
           )}
 
-          {/* Step 2: Date & Time */}
+          {/* Step 2 */}
           {step === 2 && (
             <div className="max-w-lg space-y-6">
               <div>
@@ -160,7 +193,7 @@ const BookingPage = () => {
             </div>
           )}
 
-          {/* Step 3: Confirm */}
+          {/* Step 3 */}
           {step === 3 && (
             <div className="max-w-lg rounded-xl border border-border bg-card p-6 shadow-elevated">
               <h2 className="text-lg font-bold font-heading mb-4">Xác nhận lịch khám</h2>
@@ -188,7 +221,7 @@ const BookingPage = () => {
                   <span className="font-bold text-primary">{deposit.toLocaleString('vi-VN')}đ</span>
                 </div>
               </div>
-              <Button className="mt-6 w-full gradient-primary text-primary-foreground gap-2" size="lg">
+              <Button onClick={handlePaymentAndConfirm} className="mt-6 w-full gradient-primary text-primary-foreground gap-2" size="lg">
                 <CreditCard className="h-4 w-4" /> Thanh toán cọc & Xác nhận
               </Button>
             </div>

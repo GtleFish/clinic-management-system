@@ -20,8 +20,9 @@ const Index = () => {
 
       {/* Hero */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 gradient-hero opacity-[0.03]" />
-        <div className="container mx-auto px-4 py-20 md:py-28">
+        {/* Đã thêm pointer-events-none để lớp nền không chặn chuột click vào nút */}
+        <div className="absolute inset-0 gradient-hero opacity-[0.03] pointer-events-none" />
+        <div className="container relative z-10 mx-auto px-4 py-20 md:py-28">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -41,14 +42,21 @@ const Index = () => {
               Kết nối với đội ngũ bác sĩ chuyên khoa hàng đầu. Đặt lịch, khám bệnh, nhận đơn thuốc — tất cả trong một nền tảng.
             </p>
             <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-              <Link to="/booking">
-                <Button size="lg" className="gradient-primary text-primary-foreground gap-2 px-8 shadow-hero">
+              
+              {/* FIX: Sử dụng thuộc tính "asChild" để bọc Link chuẩn xác */}
+              <Button asChild size="lg" className="gradient-primary text-primary-foreground gap-2 px-8 shadow-hero">
+                <Link to="/booking">
                   Đặt lịch ngay <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
-              <Link to="/departments">
-                <Button size="lg" variant="outline">Xem khoa khám</Button>
-              </Link>
+                </Link>
+              </Button>
+
+              {/* FIX: Sử dụng thuộc tính "asChild" cho nút Xem khoa khám */}
+              <Button asChild size="lg" variant="outline">
+                <Link to="/departments">
+                  Xem khoa khám
+                </Link>
+              </Button>
+              
             </div>
           </motion.div>
         </div>

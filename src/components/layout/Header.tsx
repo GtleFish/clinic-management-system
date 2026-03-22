@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Calendar, User, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -14,8 +14,33 @@ const navItems = [
 const Header = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
-  // Mock auth state
+  
+  // Kiểm tra trạng thái đăng nhập
   const isLoggedIn = !!localStorage.getItem("token");
+  const [userName, setUserName] = useState('Tài khoản');
+
+  // Lấy tên người dùng từ localStorage khi component được render
+  useEffect(() => {
+    if (isLoggedIn) {
+      const userStr = localStorage.getItem("user");
+      if (userStr) {
+        try {
+          const userObj = JSON.parse(userStr);
+          // Ưu tiên lấy hoTen, nếu backend chưa có hoTen thì tạm lấy username (email)
+          setUserName(userObj.hoTen || userObj.name || userObj.username || 'Tài khoản');
+        } catch (error) {
+          console.error("Lỗi khi đọc thông tin user:", error);
+        }
+      }
+    }
+  }, [isLoggedIn]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("patientProfile");
+    window.location.href = "/login";
+  };
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-card/80 backdrop-blur-xl">
@@ -50,16 +75,11 @@ const Header = () => {
               <Link to="/profile">
                 <Button variant="ghost" size="sm" className="gap-2">
                   <User className="h-4 w-4" />
-                  Tài khoản
+                  {/* Hiển thị tên người dùng ở đây */}
+                  {userName}
                 </Button>
               </Link>
-              <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground" onClick={() => {
-                  localStorage.removeItem("token");
-                  localStorage.removeItem("user");
-                  localStorage.removeItem("patientProfile");
-                  window.location.href = "/login";
-                }}
-              >
+              <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground" onClick={handleLogout}>
                 <LogOut className="h-4 w-4" />
               </Button>
             </>
@@ -105,13 +125,31 @@ const Header = () => {
                   {item.label}
                 </Link>
               ))}
+              
               <div className="mt-2 flex gap-2 border-t border-border pt-3">
-                <Link to="/login" className="flex-1" onClick={() => setMobileOpen(false)}>
-                  <Button variant="outline" className="w-full" size="sm">Đăng nhập</Button>
-                </Link>
-                <Link to="/register" className="flex-1" onClick={() => setMobileOpen(false)}>
-                  <Button className="w-full" size="sm">Đăng ký</Button>
-                </Link>
+                {isLoggedIn ? (
+                  <>
+                    <Link to="/profile" className="flex-1" onClick={() => setMobileOpen(false)}>
+                      <Button variant="outline" className="w-full gap-2" size="sm">
+                        <User className="h-4 w-4" />
+                        {/* Hiển thị tên người dùng trên Mobile */}
+                        {userName}
+                      </Button>
+                    </Link>
+                    <Button variant="destructive" size="sm" onClick={handleLogout}>
+                      <LogOut className="h-4 w-4" />
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Link to="/login" className="flex-1" onClick={() => setMobileOpen(false)}>
+                      <Button variant="outline" className="w-full" size="sm">Đăng nhập</Button>
+                    </Link>
+                    <Link to="/register" className="flex-1" onClick={() => setMobileOpen(false)}>
+                      <Button className="w-full" size="sm">Đăng ký</Button>
+                    </Link>
+                  </>
+                )}
               </div>
             </nav>
           </motion.div>
