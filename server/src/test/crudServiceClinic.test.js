@@ -34,15 +34,14 @@ describe("CrudServiceClinic", () => {
 
   test("update item", async () => {
     const item = await service.create({ name: "Old" });
-
+    
     const result = await service.update(item.id, { name: "New" });
-
     expect(result.name).toBe("New");
   });
 
-test("delete item", async () => {
+  test("delete item", async () => {
     const item = await service.create({ name: "Delete" });
     await service.delete(item.id);
-    await expect(service.getById(item.id)).rejects.toThrow("Không tìm thấy dữ liệu");
+      await expect(service.getById(item.id)).rejects.toThrow("Không tìm thấy dữ liệu");
   });
 });
