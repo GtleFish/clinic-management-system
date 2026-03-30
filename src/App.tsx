@@ -18,7 +18,7 @@ const ProfilePage      = lazy(() => import("./pages/ProfilePage"));
 const QuanLyTaiKhoan   = lazy(() => import("./pages/admin/QuanLyTaiKhoan"));
 const QuanLyBenhNhan   = lazy(() => import("./pages/employee/QuanLyBenhNhan"));
 const TaoLichKham      = lazy(() => import("./pages/employee/TaoLichKham"));
-
+const QuanLyVanHanh = lazy(() => import("./pages/admin/QuanLyVanHanh"));
 const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -41,6 +41,7 @@ const App = () => (
             <Route path="/history"               element={<HistoryPage />} />
             <Route path="/profile"               element={<ProfilePage />} />
             {/* Admin */}
+            <Route path="/admin/checkin"         element={<QuanLyVanHanh />} />
             <Route path="/admin/doctors"         element={<QuanLyTaiKhoan />} />
             <Route path="/admin/patients"        element={<QuanLyBenhNhan />} />
             {/* Nhân viên */}

@@ -52,3 +52,33 @@ export const deleteDoctor = (idBacSi) =>
  */
 export const getKhoa = () =>
   api.get('/admin/khoa').then((r) => r.data);
+
+// ── Lịch hẹn / Check-in ───────────────────────────────────
+
+/**
+ * Lấy danh sách lịch hẹn 
+ * GET /api/admin/lich-hen
+ */
+export const getTatCaLichHen = () =>
+  api.get('/admin/lich-hen/all').then((r) => r.data);
+
+/**
+ * Check-in lịch hẹn
+ * PATCH /api/admin/lich-hen/:idLichHen/checkin
+ */
+export const checkInLichHen = (idLichHen) =>
+  api.patch(`/admin/lich-hen/${idLichHen}/checkin`).then((r) => r.data);
+
+/**
+ * Hủy lịch hẹn
+ * PATCH /api/admin/lich-hen/:idLichHen/huy
+ */
+export const huyLichHen = (idLichHen) =>
+  api.patch(`/admin/lich-hen/${idLichHen}/huy`).then((r) => r.data);
+
+/**
+ * Dời lịch xuống cuối danh sách
+ * PATCH /api/admin/lich-hen/:idLichHen/doi-cuoi
+ */
+export const doiLichXuongCuoi = (idLichHen) =>
+  api.patch(`/admin/lich-hen/${idLichHen}/doi-cuoi`).then((r) => r.data);

@@ -227,6 +227,110 @@ const getKhoa = async (req, res) => {
     return res.status(500).json({ message: 'Lỗi server, vui lòng thử lại' });
   }
 };
+/**
+ * Lấy danh sách lịch hẹn hôm nay (kèm tên bệnh nhân, bác sĩ, khoa)
+ * GET /api/admin/lich-hen/hom-nay
+ */
+const getTatCaLichHen = async (req, res) => {
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const lichHenList = await knex('LichHen')
+      .join('BenhNhan', 'LichHen.idBenhNhan', 'BenhNhan.idBenhNhan')
+      .join('BacSi', 'LichHen.idBacSi', 'BacSi.idBacSi')
+      .join('Khoa', 'BacSi.idKhoa', 'Khoa.idKhoa')
+      .select(
+        'LichHen.idLichHen',
+        'LichHen.ngayHen',
+        'LichHen.gioHen',
+        'LichHen.trangThai',
+        'BenhNhan.hoTen as hoTenBenhNhan',
+        'BenhNhan.sdt as soDienThoai',
+        'BacSi.hoTen as hoTenBacSi',
+        'Khoa.tenKhoa'
+      )
+      .orderBy('LichHen.ngayHen', 'desc') 
+      .orderBy('LichHen.gioHen', 'asc');
+
+    return res.status(200).json({ data: lichHenList });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Lỗi server' });
+  }
+};
+/**
+ * Check-in lịch hẹn
+ * PATCH /api/admin/lich-hen/:idLichHen/checkin
+ */
+const checkInLichHen = async (req, res) => {
+  const { idLichHen } = req.params;
+  try {
+    const lichHen = await knex('LichHen').where({ idLichHen }).first();
+    if (!lichHen) {
+      return res.status(404).json({ message: 'Không tìm thấy lịch hẹn' });
+    }
+    if (lichHen.trangThai === 'huy') {
+      return res.status(400).json({ message: 'Lịch hẹn đã bị hủy' });
+    }
+    if (lichHen.trangThai === 'da_checkin') {
+      return res.status(400).json({ message: 'Lịch hẹn đã được check-in' });
+    }
+ 
+    await knex('LichHen').where({ idLichHen }).update({ trangThai: 'cho_kham' });
+ 
+    return res.status(200).json({ message: 'Check-in thành công (Đang chờ khám)' });
+  } catch (err) {
+    console.error('checkInLichHen error:', err);
+    return res.status(500).json({ message: 'Lỗi server, vui lòng thử lại' });
+  }
+};
+ 
+/**
+ * Hủy lịch hẹn
+ * PATCH /api/admin/lich-hen/:idLichHen/huy
+ */
+const huyLichHen = async (req, res) => {
+  const { idLichHen } = req.params;
+  try {
+    const lichHen = await knex('LichHen').where({ idLichHen }).first();
+    if (!lichHen) {
+      return res.status(404).json({ message: 'Không tìm thấy lịch hẹn' });
+    }
+    if (lichHen.trangThai === 'huy') {
+      return res.status(400).json({ message: 'Lịch hẹn đã bị hủy trước đó' });
+    }
+ 
+    await knex('LichHen').where({ idLichHen }).update({ trangThai: 'huy' });
+ 
+    return res.status(200).json({ message: 'Hủy lịch hẹn thành công' });
+  } catch (err) {
+    console.error('huyLichHen error:', err);
+    return res.status(500).json({ message: 'Lỗi server, vui lòng thử lại' });
+  }
+};
+ 
+/**
+ * Dời lịch hẹn xuống cuối danh sách (đổi gioHen → 17:00)
+ * PATCH /api/admin/lich-hen/:idLichHen/doi-cuoi
+ */
+const doiLichXuongCuoi = async (req, res) => {
+  const { idLichHen } = req.params;
+  try {
+    const lichHen = await knex('LichHen').where({ idLichHen }).first();
+    if (!lichHen) {
+      return res.status(404).json({ message: 'Không tìm thấy lịch hẹn' });
+    }
+    if (lichHen.trangThai !== 'cho_kham') {
+      return res.status(400).json({ message: 'Chỉ có thể dời lịch đang chờ khám' });
+    }
+ 
+    await knex('LichHen').where({ idLichHen }).update({ gioHen: '17:00:00' });
+ 
+    return res.status(200).json({ message: 'Đã dời lịch xuống cuối danh sách' });
+  } catch (err) {
+    console.error('doiLichXuongCuoi error:', err);
+    return res.status(500).json({ message: 'Lỗi server, vui lòng thử lại' });
+  }
+};
 
 module.exports = {
   createDoctor,
@@ -235,4 +339,9 @@ module.exports = {
   updateDoctor,
   deleteDoctor,
   getKhoa,
+  // check-in
+  getTatCaLichHen,
+  checkInLichHen,
+  huyLichHen,
+  doiLichXuongCuoi,
 };
