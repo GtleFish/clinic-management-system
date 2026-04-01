@@ -33,6 +33,7 @@ app.use("/api/clinic", buildCrudRouter(clinicService));
 app.use("/api/benhnhan", PatientRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
+app.use('/api/patient', require('./routes/PatientRoutes'));
 
 // error handler
 app.use((err, req, res, next) => {

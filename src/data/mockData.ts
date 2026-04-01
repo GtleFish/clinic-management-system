@@ -12,14 +12,14 @@ export const departments: Department[] = [
 ];
 
 export const doctors: Doctor[] = [
-  { id: 'doc-1', name: 'BS. Nguyễn Văn An', departmentId: 'dept-1', departmentName: 'Nội khoa', title: 'PGS.TS', specialization: 'Tim mạch', experience: 15, avatar: '', rating: 4.8, reviewCount: 234, available: true, consultationFee: 500000 },
-  { id: 'doc-2', name: 'BS. Trần Thị Bình', departmentId: 'dept-1', departmentName: 'Nội khoa', title: 'ThS.BS', specialization: 'Tiêu hóa', experience: 10, avatar: '', rating: 4.6, reviewCount: 178, available: true, consultationFee: 400000 },
-  { id: 'doc-3', name: 'BS. Lê Minh Cường', departmentId: 'dept-2', departmentName: 'Ngoại khoa', title: 'GS.TS', specialization: 'Phẫu thuật tổng quát', experience: 20, avatar: '', rating: 4.9, reviewCount: 312, available: true, consultationFee: 600000 },
-  { id: 'doc-4', name: 'BS. Phạm Thu Dung', departmentId: 'dept-3', departmentName: 'Sản phụ khoa', title: 'TS.BS', specialization: 'Sản khoa', experience: 12, avatar: '', rating: 4.7, reviewCount: 198, available: true, consultationFee: 450000 },
-  { id: 'doc-5', name: 'BS. Hoàng Văn Em', departmentId: 'dept-4', departmentName: 'Nhi khoa', title: 'PGS.TS', specialization: 'Nhi tổng quát', experience: 18, avatar: '', rating: 4.9, reviewCount: 456, available: true, consultationFee: 500000 },
-  { id: 'doc-6', name: 'BS. Vũ Thị Fương', departmentId: 'dept-5', departmentName: 'Da liễu', title: 'ThS.BS', specialization: 'Da liễu thẩm mỹ', experience: 8, avatar: '', rating: 4.5, reviewCount: 145, available: true, consultationFee: 350000 },
-  { id: 'doc-7', name: 'BS. Đỗ Quang Giang', departmentId: 'dept-6', departmentName: 'Mắt', title: 'TS.BS', specialization: 'Phẫu thuật mắt', experience: 14, avatar: '', rating: 4.8, reviewCount: 267, available: false, consultationFee: 500000 },
-  { id: 'doc-8', name: 'BS. Ngô Thanh Hà', departmentId: 'dept-7', departmentName: 'Tai Mũi Họng', title: 'BS.CKI', specialization: 'Tai mũi họng', experience: 9, avatar: '', rating: 4.6, reviewCount: 134, available: true, consultationFee: 380000 },
+  { id: 'BS-001', name: 'BS. Nguyễn Văn An', departmentId: 'dept-1', departmentName: 'Nội khoa', title: 'PGS.TS', specialization: 'Tim mạch', experience: 15, avatar: '', rating: 4.8, reviewCount: 234, available: true, consultationFee: 500000 },
+  { id: 'BS-002', name: 'BS. Trần Thị Bình', departmentId: 'dept-1', departmentName: 'Nội khoa', title: 'ThS.BS', specialization: 'Tiêu hóa', experience: 10, avatar: '', rating: 4.6, reviewCount: 178, available: true, consultationFee: 400000 },
+  { id: 'BS-003', name: 'BS. Lê Minh Cường', departmentId: 'dept-2', departmentName: 'Ngoại khoa', title: 'GS.TS', specialization: 'Phẫu thuật tổng quát', experience: 20, avatar: '', rating: 4.9, reviewCount: 312, available: true, consultationFee: 600000 },
+  { id: 'BS-004', name: 'BS. Phạm Thu Dung', departmentId: 'dept-3', departmentName: 'Sản phụ khoa', title: 'TS.BS', specialization: 'Sản khoa', experience: 12, avatar: '', rating: 4.7, reviewCount: 198, available: true, consultationFee: 450000 },
+  { id: 'BS-005', name: 'BS. Hoàng Văn Em', departmentId: 'dept-4', departmentName: 'Nhi khoa', title: 'PGS.TS', specialization: 'Nhi tổng quát', experience: 18, avatar: '', rating: 4.9, reviewCount: 456, available: true, consultationFee: 500000 },
+  { id: 'BS-006', name: 'BS. Vũ Thị Fương', departmentId: 'dept-5', departmentName: 'Da liễu', title: 'ThS.BS', specialization: 'Da liễu thẩm mỹ', experience: 8, avatar: '', rating: 4.5, reviewCount: 145, available: true, consultationFee: 350000 },
+  { id: 'BS-007', name: 'BS. Đỗ Quang Giang', departmentId: 'dept-6', departmentName: 'Mắt', title: 'TS.BS', specialization: 'Phẫu thuật mắt', experience: 14, avatar: '', rating: 4.8, reviewCount: 267, available: false, consultationFee: 500000 },
+  { id: 'BS-008', name: 'BS. Ngô Thanh Hà', departmentId: 'dept-7', departmentName: 'Tai Mũi Họng', title: 'BS.CKI', specialization: 'Tai mũi họng', experience: 9, avatar: '', rating: 4.6, reviewCount: 134, available: true, consultationFee: 380000 },
 ];
 
 export const timeSlots: TimeSlot[] = [
@@ -43,7 +43,7 @@ export const sampleAppointments: Appointment[] = [
   {
     id: 'apt-1',
     patientName: 'Nguyễn Văn Khách',
-    doctorId: 'doc-1',
+    doctorId: 'BS-001', // Đã sửa
     doctorName: 'PGS.TS Nguyễn Văn An',
     departmentName: 'Nội khoa',
     date: '2026-03-10',
@@ -56,7 +56,7 @@ export const sampleAppointments: Appointment[] = [
   {
     id: 'apt-2',
     patientName: 'Nguyễn Văn Khách',
-    doctorId: 'doc-5',
+    doctorId: 'BS-005', // Đã sửa
     doctorName: 'PGS.TS Hoàng Văn Em',
     departmentName: 'Nhi khoa',
     date: '2026-03-05',
@@ -91,7 +91,7 @@ export const sampleAppointments: Appointment[] = [
   {
     id: 'apt-3',
     patientName: 'Nguyễn Văn Khách',
-    doctorId: 'doc-3',
+    doctorId: 'BS-003', // Đã sửa
     doctorName: 'GS.TS Lê Minh Cường',
     departmentName: 'Ngoại khoa',
     date: '2026-02-20',

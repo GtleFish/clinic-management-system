@@ -2,7 +2,11 @@ const express = require("express");
 const router = express.Router();
 const patientService = require("../services/PatientService");
 const jwt = require("jsonwebtoken");
-//Đăng ký bệnh nhân mới
+
+// ---> BỔ SUNG: Import các hàm đặt lịch từ patientController
+const { datLichKham, getLichSuKham, getSoLuongDatTrongNgay } = require('../controllers/patientController');
+
+// Đăng ký bệnh nhân mới
 router.post("/register", async (req, res) => {
   try {
     const data = await patientService.registerPatient(req.body);
@@ -16,6 +20,7 @@ router.post("/register", async (req, res) => {
     });
   }
 });
+
 // Cập nhật hồ sơ
 router.put("/update/:idUser", async (req, res) => {
   try {
@@ -25,6 +30,7 @@ router.put("/update/:idUser", async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 });
+
 // Middleware xác thực token
 const authMiddleware = (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];
@@ -46,6 +52,7 @@ router.get("/profile", authMiddleware, async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 });
+
 // Đổi mật khẩu
 router.put("/change-password/:idUser", async (req, res) => {
   try {
@@ -55,5 +62,9 @@ router.put("/change-password/:idUser", async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 });
+
+router.post("/booking", datLichKham);
+router.get("/history", getLichSuKham);
+router.get("/booking/counts", getSoLuongDatTrongNgay);
 
 module.exports = router;

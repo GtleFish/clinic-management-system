@@ -16,6 +16,7 @@ import ProfilePage from "./pages/ProfilePage";
 import QuanLyTaiKhoan from './pages/admin/QuanLyTaiKhoan';
 import QuanLyBenhNhan from './pages/employee/QuanLyBenhNhan';
 import TaoLichKham    from './pages/employee/TaoLichKham';
+import QuanLyVanHanh from './pages/admin/QuanLyVanHanh';
 
 const queryClient = new QueryClient();
 
@@ -35,6 +36,7 @@ const App = () => (
           <Route path="/history" element={<HistoryPage />} />
           <Route path="/departments" element={<DepartmentsPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+
           
           {/* Sửa lại lỗi Route bị tuột ra ngoài */}
           <Route path="/register-patient" element={<RegisterPage />} />
@@ -44,6 +46,7 @@ const App = () => (
           {/* Thêm Route Quản lý bệnh nhân vào trang Admin (tái sử dụng component của Employee) */}
           <Route path="/admin/patients" element={<QuanLyBenhNhan />} />
 
+          <Route path="/admin/checkin" element={<QuanLyVanHanh />} />
           {/* Các Route dành cho Nhân viên/Lễ tân */}
           <Route path="/employee/patients"     element={<QuanLyBenhNhan />} />
           <Route path="/employee/appointments" element={<TaoLichKham />} />
