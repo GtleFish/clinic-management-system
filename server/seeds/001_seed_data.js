@@ -8,6 +8,7 @@ exports.seed = async function(knex) {
   await knex('LichHen').del();
   await knex('BenhNhan').del();
   await knex('NhanVien').del();
+  
   // Bỏ FK Khoa.idBacSi tạm để xóa được
   await knex.raw('SET FOREIGN_KEY_CHECKS = 0');
   await knex('BacSi').del();
@@ -31,11 +32,15 @@ exports.seed = async function(knex) {
     { idAdmin: 'ADM-001', quyenHan: 'full_access', idUser: 'USR-ADMIN-001' },
   ]);
 
-  // ── Khoa (idBacSi = null trước, cập nhật sau) ─
+  // ── Khoa (Dữ liệu 7 Khoa chuẩn cho Frontend) ─
   await knex('Khoa').insert([
-    { idKhoa: 'KHOA-TIM',   idBacSi: null, tenKhoa: 'Khoa Tim mạch',   moTa: 'Chuyên khám và điều trị bệnh tim mạch'    },
-    { idKhoa: 'KHOA-XUONG', idBacSi: null, tenKhoa: 'Khoa Xương khớp', moTa: 'Chuyên khám và điều trị bệnh xương khớp'  },
-    { idKhoa: 'KHOA-TK',    idBacSi: null, tenKhoa: 'Khoa Thần kinh',  moTa: 'Chuyên khám và điều trị bệnh thần kinh'   },
+    { idKhoa: 'dept-1', idBacSi: null, tenKhoa: 'Nội khoa', moTa: 'Khám và điều trị các bệnh nội khoa tổng quát' },
+    { idKhoa: 'dept-2', idBacSi: null, tenKhoa: 'Ngoại khoa', moTa: 'Phẫu thuật và can thiệp ngoại khoa' },
+    { idKhoa: 'dept-3', idBacSi: null, tenKhoa: 'Sản phụ khoa', moTa: 'Chăm sóc sức khỏe phụ nữ và thai sản' },
+    { idKhoa: 'dept-4', idBacSi: null, tenKhoa: 'Nhi khoa', moTa: 'Chăm sóc sức khỏe trẻ em' },
+    { idKhoa: 'dept-5', idBacSi: null, tenKhoa: 'Da liễu', moTa: 'Khám và điều trị các bệnh về da' },
+    { idKhoa: 'dept-6', idBacSi: null, tenKhoa: 'Mắt', moTa: 'Khám và điều trị các bệnh về mắt' },
+    { idKhoa: 'dept-7', idBacSi: null, tenKhoa: 'Tai Mũi Họng', moTa: 'Khám và điều trị tai, mũi, họng' }
   ]);
 
   // ── BacSiTruong ───────────────────────────────
@@ -43,14 +48,20 @@ exports.seed = async function(knex) {
     { idBacSiTruong: 'BST-001', hoTen: 'PGS.TS Nguyễn Văn An', phuCap: 5000000 },
   ]);
 
-  // ── BacSi ─────────────────────────────────────
+  // ── BacSi (Dữ liệu 8 Bác sĩ chuẩn cho Frontend) ─────────────────────────────────────
   await knex('BacSi').insert([
-    { idBacSi: 'BS-001', idKhoa: 'KHOA-TIM',   hoTen: 'BS. Trần Thị Bình', chuyenKhoa: 'Tim mạch',   namKinhNghiem: 8 },
-    { idBacSi: 'BS-002', idKhoa: 'KHOA-XUONG', hoTen: 'BS. Lê Văn Cường',  chuyenKhoa: 'Xương khớp', namKinhNghiem: 5 },
+    { idBacSi: 'BS-001', idKhoa: 'dept-1', hoTen: 'BS. Nguyễn Văn An', chuyenKhoa: 'Tim mạch', namKinhNghiem: 15 },
+    { idBacSi: 'BS-002', idKhoa: 'dept-1', hoTen: 'BS. Trần Thị Bình', chuyenKhoa: 'Tiêu hóa', namKinhNghiem: 10 },
+    { idBacSi: 'BS-003', idKhoa: 'dept-2', hoTen: 'BS. Lê Minh Cường', chuyenKhoa: 'Phẫu thuật tổng quát', namKinhNghiem: 20 },
+    { idBacSi: 'BS-004', idKhoa: 'dept-3', hoTen: 'BS. Phạm Thu Dung', chuyenKhoa: 'Sản khoa', namKinhNghiem: 12 },
+    { idBacSi: 'BS-005', idKhoa: 'dept-4', hoTen: 'BS. Hoàng Văn Em', chuyenKhoa: 'Nhi tổng quát', namKinhNghiem: 18 },
+    { idBacSi: 'BS-006', idKhoa: 'dept-5', hoTen: 'BS. Vũ Thị Fương', chuyenKhoa: 'Da liễu thẩm mỹ', namKinhNghiem: 8 },
+    { idBacSi: 'BS-007', idKhoa: 'dept-6', hoTen: 'BS. Đỗ Quang Giang', chuyenKhoa: 'Phẫu thuật mắt', namKinhNghiem: 14 },
+    { idBacSi: 'BS-008', idKhoa: 'dept-7', hoTen: 'BS. Ngô Thanh Hà', chuyenKhoa: 'Tai mũi họng', namKinhNghiem: 9 }
   ]);
 
-  // ── Cập nhật Khoa.idBacSi (bác sĩ trưởng khoa)
-  await knex('Khoa').where({ idKhoa: 'KHOA-TIM' }).update({ idBacSi: 'BS-001' });
+  // ── Cập nhật Khoa.idBacSi (Cho BS-001 làm trưởng Nội khoa)
+  await knex('Khoa').where({ idKhoa: 'dept-1' }).update({ idBacSi: 'BS-001' });
 
   // ── NhanVien ──────────────────────────────────
   await knex('NhanVien').insert([
