@@ -210,7 +210,64 @@ const getBacSi = async (req, res) => {
   }
 };
 
+/**
+ * US-EMP-03: Xác nhận bệnh nhân đến khám
+ * PUT /api/employee/lich-hen/:idLichHen/checkin
+ */
+const checkIn = async (req, res) => {
+  const { idLichHen } = req.params;
+  const { ghiChu } = req.body || {};
+
+  try {
+    const lichHen = await knex("LichHen")
+      .where({ idLichHen })
+      .first();
+
+    if (!lichHen) {
+      return res.status(404).json({ message: "Không tìm thấy lịch hẹn" });
+    }
+
+    const validStatuses = ["Đã đặt lịch", "Đã xác nhận"];
+    if (!validStatuses.includes(lichHen.trangThai)) {
+      return res.status(400).json({
+        message: "Lịch hẹn không thể check-in ở trạng thái hiện tại",
+      });
+    }
+
+    const appointmentTime = new Date(`${lichHen.ngayHen}T${lichHen.gioHen}`);
+    const lateThreshold = new Date(appointmentTime.getTime() + 30 * 60 * 1000);
+    const isDenTre = new Date() > lateThreshold;
+
+    await knex("LichHen")
+      .where({ idLichHen })
+      .update({
+        trangThai: "Đã đến",
+        ghiChu: ghiChu !== undefined ? ghiChu : lichHen.ghiChu,
+      });
+
+    const updated = await knex("LichHen")
+      .join("BenhNhan", "LichHen.idBenhNhan", "BenhNhan.idBenhNhan")
+      .join("BacSi", "LichHen.idBacSi", "BacSi.idBacSi")
+      .select(
+        "LichHen.*",
+        "BenhNhan.hoTen as tenBenhNhan",
+        "BacSi.hoTen as tenBacSi",
+      )
+      .where("LichHen.idLichHen", idLichHen)
+      .first();
+
+    return res.json({
+      message: "Check-in thành công",
+      data: updated,
+      isDenTre,
+    });
+  } catch (err) {
+    console.error("checkIn:", err);
+    return res.status(500).json({ message: "Lỗi server" });
+  }
+};
+
 module.exports = {
   getBenhNhan, getBenhNhanById, createBenhNhan, updateBenhNhan,
-  getLichHen, createLichHen, getBacSi,
+  getLichHen, createLichHen, getBacSi, checkIn,
 };

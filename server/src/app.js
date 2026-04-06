@@ -9,6 +9,9 @@ const InMemoryRepository = require("./repositories/inMemoryRepository");
 const PatientRoutes = require("./routes/PatientRoutes");
 const authRoutes = require("./routes/AuthRoutes");
 const adminRoutes = require("./routes/admin");
+const employeeRoutes = require("./routes/employee");
+const patientRoutes = require("./routes/patient");
+const doctorRoutes = require("./routes/doctor");
 
 const app = express();
 
@@ -33,7 +36,9 @@ app.use("/api/clinic", buildCrudRouter(clinicService));
 app.use("/api/benhnhan", PatientRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
-app.use('/api/patient', require('./routes/PatientRoutes'));
+app.use("/api/employee", employeeRoutes);
+app.use("/api/patient", patientRoutes);
+app.use("/api/doctor", doctorRoutes);
 
 // error handler
 app.use((err, req, res, next) => {
@@ -48,6 +53,3 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
-
-const employeeRoutes = require('./routes/employee');
-app.use('/api/employee', employeeRoutes);

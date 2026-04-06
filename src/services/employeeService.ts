@@ -29,6 +29,9 @@ export const getLichHen = (params: { date?: string; idBacSi?: string } = {}) =>
 export const createLichHen = (data: object) =>
   api.post('/employee/lich-hen', data).then(r => r.data);
 
+export const checkIn = (idLichHen: string, ghiChu?: string) =>
+  api.put(`/employee/lich-hen/${idLichHen}/checkin`, { ghiChu }).then(r => r.data);
+
 // ── Dropdown ─────────────────────────────────────────────
 export const getBacSiList = () =>
   api.get('/employee/bac-si').then(r => r.data);

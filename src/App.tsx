@@ -18,8 +18,9 @@ const ProfilePage      = lazy(() => import("./pages/ProfilePage"));
 const QuanLyTaiKhoan   = lazy(() => import("./pages/admin/QuanLyTaiKhoan"));
 const QuanLyBenhNhan   = lazy(() => import("./pages/employee/QuanLyBenhNhan"));
 const TaoLichKham      = lazy(() => import("./pages/employee/TaoLichKham"));
-const QuanLyVanHanh    = lazy(() => import("./pages/admin/QuanLyVanHanh"));
-
+const QuanLyVanHanh = lazy(() => import("./pages/admin/QuanLyVanHanh"));
+const LichSuKham = lazy(() => import("./pages/patient/LichSuKham"));
+const KhamBenh = lazy(() => import("./pages/doctor/KhamBenh"));
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -41,10 +42,10 @@ const App = () => (
             <Route path="/departments" element={<DepartmentsPage />} />
 
             {/* Bệnh nhân */}
-            <Route path="/booking" element={<BookingPage />} />
-            <Route path="/history" element={<HistoryPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-
+            <Route path="/booking"               element={<BookingPage />} />
+            <Route path="/history"               element={<HistoryPage />} />
+            <Route path="/profile"               element={<ProfilePage />} />
+            <Route path="/patient/lich-su-kham"  element={<LichSuKham />} />
             {/* Admin */}
             <Route path="/admin/checkin" element={<QuanLyVanHanh />} />
             <Route path="/admin/doctors" element={<QuanLyTaiKhoan />} />
@@ -53,10 +54,10 @@ const App = () => (
             {/* Nhân viên */}
             <Route path="/employee/patients" element={<QuanLyBenhNhan />} />
             <Route path="/employee/appointments" element={<TaoLichKham />} />
-
-            {/* 404 */}
-            <Route path="*" element={<NotFound />} />
-
+            {/* Bác sĩ */}
+            <Route path="/doctor/kham-benh"      element={<KhamBenh />} />
+            {/* 404 — luôn đặt cuối */}
+            <Route path="*"                      element={<NotFound />} />
           </Routes>
         </Suspense>
 
