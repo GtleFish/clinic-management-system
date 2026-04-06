@@ -4,7 +4,7 @@ import { Calendar, Plus, Search, Clock, User, X, AlertTriangle } from 'lucide-re
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { getLichHen, createLichHen, getBacSiList, getBenhNhan } from '@/services/employeeService';
+import { getLichHen, createLichHen, getBacSiList, getBenhNhan, checkIn } from '@/services/employeeService';
 
 // ── Types ──────────────────────────────────────────────────
 interface LichHen {
@@ -62,6 +62,10 @@ export default function TaoLichKham() {
   const [filterBacSi,  setFilterBacSi]  = useState('all');
   const [bnSearch,     setBnSearch]     = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showCheckinModal, setShowCheckinModal] = useState(false);
+  const [selectedCheckin, setSelectedCheckin] = useState<LichHen | null>(null);
+  const [checkinNote, setCheckinNote] = useState('');
+  const [checkinLoading, setCheckinLoading] = useState(false);
 
   // ── Fetch ──────────────────────────────────────────────
   const fetchLich = useCallback(async () => {
@@ -97,6 +101,16 @@ export default function TaoLichKham() {
 
   const openForm = () => { setForm(EMPTY); setErrors({}); setBnSearch(''); setShowForm(true); };
   const closeForm = () => { setShowForm(false); };
+  const openCheckin = (lichHen: LichHen) => {
+    setSelectedCheckin(lichHen);
+    setCheckinNote(lichHen.ghiChu || '');
+    setShowCheckinModal(true);
+  };
+  const closeCheckin = () => {
+    setShowCheckinModal(false);
+    setSelectedCheckin(null);
+    setCheckinNote('');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -115,6 +129,25 @@ export default function TaoLichKham() {
         notify('error', data?.message || 'Có lỗi xảy ra');
       }
     } finally { setFormLoading(false); }
+  };
+
+  const handleCheckin = async () => {
+    if (!selectedCheckin) return;
+    setCheckinLoading(true);
+    try {
+      const res = await checkIn(selectedCheckin.idLichHen, checkinNote);
+      if (res?.isDenTre) {
+        notify('warn', 'Bệnh nhân đến trễ hơn 30 phút');
+      } else {
+        notify('success', 'Check-in thành công');
+      }
+      closeCheckin();
+      fetchLich();
+    } catch (err: any) {
+      notify('error', err.response?.data?.message || 'Không thể check-in');
+    } finally {
+      setCheckinLoading(false);
+    }
   };
 
   // ── Render ─────────────────────────────────────────────
@@ -213,9 +246,15 @@ export default function TaoLichKham() {
                     <p className="text-sm font-medium">{lh.tenBacSi}</p>
                     <p className="text-xs text-muted-foreground">{lh.tenKhoa}</p>
                   </div>
-                  <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${STATUS_COLOR[lh.trangThai] || 'bg-gray-100 text-gray-600'}`}>
-                    {lh.trangThai}
-                  </span>
+                  {['Đã đặt lịch', 'Đã xác nhận'].includes(lh.trangThai) ? (
+                    <Button size="sm" className="gradient-primary text-primary-foreground" onClick={() => openCheckin(lh)}>
+                      Check-in
+                    </Button>
+                  ) : (
+                    <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${STATUS_COLOR[lh.trangThai] || 'bg-gray-100 text-gray-600'}`}>
+                      {lh.trangThai}
+                    </span>
+                  )}
                 </div>
               </motion.div>
             ))}
@@ -339,6 +378,62 @@ export default function TaoLichKham() {
                   </Button>
                 </div>
               </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Modal Check-in ───────────────────────────── */}
+      <AnimatePresence>
+        {showCheckinModal && selectedCheckin && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-card border border-border rounded-2xl shadow-elevated w-full max-w-md"
+            >
+              <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+                <h2 className="text-lg font-semibold font-heading">Xác nhận check-in</h2>
+                <button onClick={closeCheckin} className="rounded-lg p-1.5 hover:bg-muted transition-colors">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="px-6 py-5 space-y-4">
+                <div className="rounded-lg border border-border bg-background p-3 text-sm space-y-1">
+                  <p><span className="text-muted-foreground">Bệnh nhân:</span> {selectedCheckin.tenBenhNhan}</p>
+                  <p><span className="text-muted-foreground">Giờ hẹn:</span> {selectedCheckin.gioHen.slice(0, 5)}</p>
+                  <p><span className="text-muted-foreground">Bác sĩ:</span> {selectedCheckin.tenBacSi}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium mb-1.5 block">Ghi chú</label>
+                  <textarea
+                    value={checkinNote}
+                    onChange={(e) => setCheckinNote(e.target.value)}
+                    rows={3}
+                    placeholder="Ghi chú nếu bệnh nhân đến trễ..."
+                    className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background resize-none focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  />
+                </div>
+                <div className="flex gap-3">
+                  <Button type="button" variant="outline" className="flex-1" onClick={closeCheckin}>
+                    Hủy
+                  </Button>
+                  <Button
+                    type="button"
+                    className="flex-1 gradient-primary text-primary-foreground"
+                    onClick={handleCheckin}
+                    disabled={checkinLoading}
+                  >
+                    {checkinLoading ? 'Đang xử lý...' : 'Xác nhận check-in'}
+                  </Button>
+                </div>
+              </div>
             </motion.div>
           </motion.div>
         )}
