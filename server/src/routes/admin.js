@@ -1,7 +1,7 @@
 const express = require('express');
 const router  = express.Router();
 
-//const { authenticate, authorize }             = require('../middleware/auth');
+const { authenticate, authorize }             = require('../middleware/auth');
 const { validateCreateDoctor, validateUpdateDoctor } = require('../middleware/validate');
 const {
   createDoctor,
@@ -17,8 +17,7 @@ const {
   getTatCaLichHen,
 } = require('../controllers/adminController');
 
-// Tất cả routes admin đều yêu cầu đăng nhập + role admin
-//router.use(authenticate, authorize('admin'));
+router.use(authenticate, authorize('admin'));
 
 // ── Bác sĩ ─────────────────────────────────────────────────
 // GET    /api/admin/doctors          → danh sách bác sĩ

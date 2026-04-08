@@ -1,12 +1,12 @@
 const express = require('express');
 const router  = express.Router();
-// const { authenticate, authorize } = require('../middleware/auth');
+const { authenticate, authorize } = require('../middleware/auth');
 const {
   getBenhNhan, getBenhNhanById, createBenhNhan, updateBenhNhan,
   getLichHen, createLichHen, getBacSi, checkIn,
 } = require('../controllers/employeeController');
 
-// router.use(authenticate, authorize('nhanvien', 'admin'));
+router.use(authenticate, authorize('nhanvien', 'admin'));
 
 // ── US-EMP-01: Bệnh nhân ──────────────────────────────────
 router.get ('/benh-nhan',     getBenhNhan);      // AC3 — tìm kiếm
