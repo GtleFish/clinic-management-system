@@ -1,4 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Activity, Plus, Search, UserCog, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import DoctorForm from '../../components/admin/DoctorForm';
 import {
   getDoctors,
@@ -105,148 +109,200 @@ export default function QuanLyTaiKhoan() {
 
   // ── Render ─────────────────────────────────────────────────
   return (
-    <div className="p-6 max-w-6xl mx-auto">
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto max-w-6xl px-4 py-10">
 
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">Quản lý tài khoản Bác sĩ</h1>
-          <p className="text-sm text-gray-500 mt-1">US-ADM-01 — Tạo và quản lý tài khoản nhân viên y tế</p>
-        </div>
-        <button
-          onClick={handleOpenCreate}
-          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700"
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
         >
-          + Thêm bác sĩ
-        </button>
-      </div>
+          <div>
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-medium text-primary">
+              <Activity className="h-3.5 w-3.5" /> US-ADM-01
+            </div>
+            <h1 className="text-3xl font-bold font-heading text-primary">Quản lý tài khoản bác sĩ</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Tạo và quản lý tài khoản nhân viên y tế trong hệ thống.
+            </p>
+          </div>
+          <Button onClick={handleOpenCreate} className="gradient-primary text-primary-foreground gap-2 shadow-hero">
+            <Plus className="h-4 w-4" /> Thêm bác sĩ
+          </Button>
+        </motion.div>
 
-      {/* Filter bar */}
-      <div className="flex gap-3 mb-4">
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Tìm theo tên bác sĩ..."
-          className="border border-gray-300 rounded-md px-3 py-2 text-sm w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <select
-          value={filterKhoa}
-          onChange={(e) => setFilterKhoa(e.target.value)}
-          className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        {/* Filter bar */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.08 }}
+          className="mb-5 flex flex-col gap-3 sm:flex-row"
         >
-          <option value="">Tất cả khoa</option>
-          {khoaList.map((k) => (
-            <option key={k.idKhoa} value={k.idKhoa}>{k.tenKhoa}</option>
-          ))}
-        </select>
-      </div>
+          <div className="relative w-full sm:w-72">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Tìm theo tên bác sĩ..."
+              className="pl-9"
+            />
+          </div>
+          <select
+            value={filterKhoa}
+            onChange={(e) => setFilterKhoa(e.target.value)}
+            className="h-10 rounded-md border border-border bg-card px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+          >
+            <option value="">Tất cả khoa</option>
+            {khoaList.map((k) => (
+              <option key={k.idKhoa} value={k.idKhoa}>{k.tenKhoa}</option>
+            ))}
+          </select>
+        </motion.div>
 
-      {/* Table */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 border-b border-gray-200">
-            <tr>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Họ tên</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Chuyên khoa</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Khoa</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Kinh nghiệm</th>
-              <th className="text-right px-4 py-3 font-medium text-gray-600">Thao tác</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
+        {/* Table */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.12 }}
+          className="overflow-hidden rounded-xl border border-border bg-card shadow-card"
+        >
+          <table className="w-full text-sm">
+            <thead className="border-b border-border bg-muted/40">
               <tr>
-                <td colSpan={5} className="text-center py-10 text-gray-400">Đang tải...</td>
+                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Họ tên</th>
+                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Chuyên khoa</th>
+                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Khoa</th>
+                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Kinh nghiệm</th>
+                <th className="px-4 py-3 text-right font-medium text-muted-foreground">Thao tác</th>
               </tr>
-            ) : doctors.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="text-center py-10 text-gray-400">Chưa có bác sĩ nào</td>
-              </tr>
-            ) : (
-              doctors.map((doc) => (
-                <tr key={doc.idBacSi} className="border-b border-gray-100 hover:bg-gray-50">
-                  <td className="px-4 py-3 font-medium text-gray-800">{doc.hoTen}</td>
-                  <td className="px-4 py-3 text-gray-600">{doc.chuyenKhoa}</td>
-                  <td className="px-4 py-3">
-                    <span className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full">
-                      {doc.tenKhoa}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-gray-600">{doc.namKinhNghiem} năm</td>
-                  <td className="px-4 py-3 text-right">
-                    <button
-                      onClick={() => handleOpenEdit(doc)}
-                      className="text-blue-600 hover:underline text-xs mr-3"
-                    >
-                      Sửa
-                    </button>
-                    <button
-                      onClick={() => handleDelete(doc)}
-                      className="text-red-500 hover:underline text-xs"
-                    >
-                      Xóa
-                    </button>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td colSpan={5} className="py-10 text-center text-muted-foreground">Đang tải...</td>
+                </tr>
+              ) : doctors.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="py-10 text-center text-muted-foreground">
+                    Chưa có bác sĩ nào
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-        {!loading && (
-          <div className="px-4 py-2 text-xs text-gray-400 border-t border-gray-100">
-            Tổng: {doctors.length} bác sĩ
-          </div>
-        )}
+              ) : (
+                doctors.map((doc) => (
+                  <tr key={doc.idBacSi} className="border-b border-border transition-colors hover:bg-muted/30">
+                    <td className="px-4 py-3 font-medium">{doc.hoTen}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{doc.chuyenKhoa}</td>
+                    <td className="px-4 py-3">
+                      <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs text-primary">
+                        {doc.tenKhoa}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-muted-foreground">{doc.namKinhNghiem} năm</td>
+                    <td className="px-4 py-3 text-right">
+                      <Button variant="ghost" size="sm" onClick={() => handleOpenEdit(doc)} className="mr-1 text-primary">
+                        Sửa
+                      </Button>
+                      <Button variant="ghost" size="sm" onClick={() => handleDelete(doc)} className="text-destructive">
+                        Xóa
+                      </Button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+          {!loading && (
+            <div className="border-t border-border px-4 py-2 text-xs text-muted-foreground">
+              Tổng: {doctors.length} bác sĩ
+            </div>
+          )}
+        </motion.div>
       </div>
 
       {/* Modal Form */}
-      {showForm && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 p-6">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">
-              {editData ? 'Cập nhật tài khoản bác sĩ' : 'Thêm bác sĩ mới'}
-            </h2>
-            <DoctorForm
-              initialData={editData}
-              onSubmit={handleSubmit}
-              onCancel={handleCloseForm}
-              loading={formLoading}
-            />
-          </div>
-        </div>
-      )}
+      <AnimatePresence>
+        {showForm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              className="w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-elevated"
+            >
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="flex items-center gap-2 text-lg font-semibold font-heading">
+                  <UserCog className="h-5 w-5 text-primary" />
+                  {editData ? 'Cập nhật tài khoản bác sĩ' : 'Thêm bác sĩ mới'}
+                </h2>
+                <button onClick={handleCloseForm} className="rounded-md p-1.5 hover:bg-muted">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <DoctorForm
+                initialData={editData}
+                onSubmit={handleSubmit}
+                onCancel={handleCloseForm}
+                loading={formLoading}
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Modal hiển thị mật khẩu mặc định sau khi tạo */}
-      {showDefaultPw && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4 p-6 text-center">
-            <div className="text-4xl mb-3">🔑</div>
-            <h2 className="text-lg font-semibold text-gray-800 mb-2">Tài khoản đã được tạo</h2>
-            <p className="text-sm text-gray-500 mb-4">
-              Vui lòng thông báo thông tin đăng nhập cho bác sĩ:
-            </p>
-            <div className="bg-gray-50 rounded-lg p-4 text-left text-sm space-y-2 mb-4">
-              <div><span className="text-gray-500">Tên đăng nhập:</span> <strong>{showDefaultPw.username}</strong></div>
-              <div><span className="text-gray-500">Mật khẩu:</span> <strong className="text-blue-600">{showDefaultPw.defaultPassword}</strong></div>
-            </div>
-            <p className="text-xs text-gray-400 mb-4">Bác sĩ nên đổi mật khẩu sau lần đăng nhập đầu tiên</p>
-            <button
-              onClick={() => setShowDefaultPw(null)}
-              className="w-full bg-blue-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-blue-700"
+      <AnimatePresence>
+        {showDefaultPw && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              className="w-full max-w-sm rounded-xl border border-border bg-card p-6 text-center shadow-elevated"
             >
-              Đã hiểu
-            </button>
-          </div>
-        </div>
-      )}
+              <div className="mb-3 text-4xl">🔑</div>
+              <h2 className="mb-2 text-lg font-semibold font-heading">Tài khoản đã được tạo</h2>
+              <p className="mb-4 text-sm text-muted-foreground">
+                Vui lòng thông báo thông tin đăng nhập cho bác sĩ:
+              </p>
+              <div className="mb-4 space-y-2 rounded-lg border border-border bg-background p-4 text-left text-sm">
+                <div><span className="text-muted-foreground">Tên đăng nhập:</span> <strong>{showDefaultPw.username}</strong></div>
+                <div><span className="text-muted-foreground">Mật khẩu:</span> <strong className="text-primary">{showDefaultPw.defaultPassword}</strong></div>
+              </div>
+              <p className="mb-4 text-xs text-muted-foreground">Bác sĩ nên đổi mật khẩu sau lần đăng nhập đầu tiên</p>
+              <Button onClick={() => setShowDefaultPw(null)} className="w-full gradient-primary text-primary-foreground">
+                Đã hiểu
+              </Button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Toast notification */}
-      {toast && (
-        <div className={`fixed bottom-5 right-5 px-4 py-3 rounded-lg text-sm text-white shadow-lg z-50
-          ${toast.type === 'success' ? 'bg-green-600' : 'bg-red-500'}`}>
-          {toast.type === 'success' ? '✅' : '❌'} {toast.message}
-        </div>
-      )}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, x: 20 }}
+            animate={{ opacity: 1, y: 0, x: 0 }}
+            exit={{ opacity: 0, y: 20, x: 20 }}
+            className={`fixed bottom-5 right-5 z-50 rounded-xl px-4 py-3 text-sm text-white shadow-elevated ${
+              toast.type === 'success' ? 'bg-green-600' : 'bg-destructive'
+            }`}
+          >
+            {toast.type === 'success' ? '✅' : '❌'} {toast.message}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
