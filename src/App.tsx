@@ -17,6 +17,7 @@ import QuanLyTaiKhoan from './pages/admin/QuanLyTaiKhoan';
 import QuanLyBenhNhan from './pages/employee/QuanLyBenhNhan';
 import TaoLichKham    from './pages/employee/TaoLichKham';
 import QuanLyVanHanh from './pages/admin/QuanLyVanHanh';
+import AdminDashboard from "./pages/admin/AdminDashboard";
 
 // --- IMPORT 4 TRANG CỦA BÁC SĨ ---
 import DoctorDashboard from "./pages/doctor/DoctorDashboard";
@@ -44,6 +45,8 @@ const App = () => (
           <Route path="/register-patient" element={<RegisterPage />} />
 
           {/* Admin & Employee */}
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/doctors" element={<QuanLyTaiKhoan />} />
           <Route path="/admin/patients" element={<QuanLyBenhNhan />} />
           <Route path="/admin/checkin" element={<QuanLyVanHanh />} />

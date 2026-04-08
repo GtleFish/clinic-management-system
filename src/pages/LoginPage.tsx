@@ -23,7 +23,12 @@ const LoginPage = () => {
       localStorage.setItem("user", JSON.stringify(result.user));
 
       alert("Đăng nhập thành công!");
-      navigate("/"); // ← Chuyển về trang chủ
+      const role = String(result.user?.role || "").toLowerCase();
+      if (role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
 
     } catch (error: unknown) {
       if (error instanceof Error) {
