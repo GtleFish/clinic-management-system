@@ -1,40 +1,56 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { motion } from 'framer-motion';
 import { loginUser } from '@/lib/apiAuth';
+import {
+  canAccessPath,
+  getDefaultPathForRole,
+  getStoredUser,
+  normalizeRole,
+} from '@/lib/rbac';
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const fromPath =
+    (location.state as { from?: { pathname: string } })?.from?.pathname ?? null;
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const user = getStoredUser();
+    if (token && user) {
+      navigate(getDefaultPathForRole(user.role), { replace: true });
+    }
+  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const result = await loginUser(email, password);
 
-      // Lưu token và thông tin user
-      localStorage.setItem("token", result.token);
-      localStorage.setItem("user", JSON.stringify(result.user));
+      localStorage.setItem('token', result.token);
+      localStorage.setItem('user', JSON.stringify(result.user));
 
-      alert("Đăng nhập thành công!");
-      const role = String(result.user?.role || "").toLowerCase();
-      if (role === "admin") {
-        navigate("/admin");
-      } else {
-        navigate("/");
-      }
+      const role = normalizeRole(result.user?.role);
+      const fallback = getDefaultPathForRole(result.user?.role);
+      const target =
+        fromPath && role && canAccessPath(role, fromPath) ? fromPath : fallback;
 
+      alert('Đăng nhập thành công!');
+      navigate(target, { replace: true });
     } catch (error: unknown) {
       if (error instanceof Error) {
         alert(error.message);
       } else {
-        alert("Đăng nhập thất bại");
+        alert('Đăng nhập thất bại');
       }
     }
   };
