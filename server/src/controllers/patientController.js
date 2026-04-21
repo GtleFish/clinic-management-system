@@ -87,7 +87,11 @@ const getSoLuongDatTrongNgay = async (req, res) => {
 // 4. US-PAT-03: Lấy lịch sử khám bệnh của bệnh nhân
 const getLichSuKham = async (req, res) => {
   try {
-    const idBenhNhan = req.user?.idBenhNhan || req.query.idBenhNhan;
+    // idBenhNhan từ query, hoặc derive từ idUser trong token (US-BN-001 → BN-001)
+    const idBenhNhan =
+      req.query.idBenhNhan ||
+      (req.user?.idBenhNhan) ||
+      (req.user?.idUser ? req.user.idUser.replace("US-", "") : null);
     if (!idBenhNhan) {
       return res.status(400).json({ message: "Thiếu idBenhNhan" });
     }
