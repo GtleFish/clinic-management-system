@@ -20,11 +20,11 @@ exports.seed = async function(knex) {
 
   // ── users ─────────────────────────────────────
   await knex('users').insert([
-    { idUser: 'USR-ADMIN-001', role: 'admin',       username: 'admin',      password: hash('Admin@123') },
-    { idUser: 'USR-NV-001',    role: 'nhanvien',    username: 'nhanvien',   password: hash('Nv@123')    },
-    { idUser: 'USR-BS-001',    role: 'bacsi',       username: 'bs_tim',     password: hash('Bs@123')    },
-    { idUser: 'USR-BS-002',    role: 'bacsi',       username: 'bs_xuong',   password: hash('Bs@123')    },
-    { idUser: 'USR-BN-001',    role: 'benhnhan',    username: 'benhnhan01', password: hash('Bn@123')    },
+    { idUser: 'USR-ADMIN-001', role: 'admin',       username: 'admin@gmail.com',      password: hash('Admin@123') },
+    { idUser: 'USR-NV-001',    role: 'nhanvien',    username: 'nhanvien@gmail.com',   password: hash('Nv@123')    },
+    { idUser: 'USR-BS-001',    role: 'bacsi',       username: 'bs_tim@gmail.com',     password: hash('Bs@123')    },
+    { idUser: 'USR-BS-002',    role: 'bacsi',       username: 'bs_xuong@gmail.com',   password: hash('Bs@123')    },
+    { idUser: 'USR-BN-001',    role: 'benhnhan',    username: 'benhnhan01@gmail.com', password: hash('Bn@123')    },
   ]);
 
   // ── admin ─────────────────────────────────────

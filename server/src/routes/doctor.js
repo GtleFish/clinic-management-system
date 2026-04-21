@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-// const { authenticate, authorize } = require("../middleware/auth");
+const { authenticate, authorize } = require("../middleware/auth");
 const {
   getDanhSachChoKham,
   luuKetQuaKham,
@@ -9,7 +9,7 @@ const {
   getBacSiTruongList,
 } = require("../controllers/doctorController");
 
-// router.use(authenticate, authorize("bacsi", "admin"));
+router.use(authenticate, authorize("bacsi", "admin"));
 
 router.get("/danh-sach-cho", getDanhSachChoKham);
 router.post("/ket-qua-kham", luuKetQuaKham);

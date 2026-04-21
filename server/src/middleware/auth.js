@@ -1,5 +1,9 @@
 const jwt = require('jsonwebtoken');
 
+function normalizeRole(role) {
+  return String(role || '').trim().toLowerCase();
+}
+
 /**
  * Middleware xác thực JWT token
  */
@@ -21,16 +25,21 @@ const authenticate = (req, res, next) => {
 };
 
 /**
- * Middleware kiểm tra role
- * Dùng: authorize('admin') hoặc authorize('admin', 'bacsi')
+ * RBAC: kiểm tra role (không phân biệt hoa thường).
+ * Role admin luôn được phép trên mọi route dùng authorize().
  */
 const authorize = (...roles) => {
+  const allowed = roles.map((r) => normalizeRole(r));
   return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
-      return res.status(403).json({ message: 'Không có quyền thực hiện thao tác này' });
+    const userRole = normalizeRole(req.user?.role);
+    if (userRole === 'admin') {
+      return next();
     }
-    next();
+    if (allowed.includes(userRole)) {
+      return next();
+    }
+    return res.status(403).json({ message: 'Không có quyền thực hiện thao tác này' });
   };
 };
 
-module.exports = { authenticate, authorize };
+module.exports = { authenticate, authorize, normalizeRole };
