@@ -29,7 +29,17 @@ export default function LichSuKham() {
   const [donThuoc, setDonThuoc] = useState<DonThuoc[]>([]);
   const [loadingDonThuoc, setLoadingDonThuoc] = useState(false);
 
-  const idBenhNhan = localStorage.getItem("idBenhNhan") || "BN-TEST";
+  const idBenhNhan = (() => {
+    const cached = localStorage.getItem("idBenhNhan");
+    if (cached) return cached;
+    // fallback: derive từ user object nếu có
+    try {
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      return user?.idBenhNhan || "";
+    } catch {
+      return "";
+    }
+  })();
 
   useEffect(() => {
     const fetchData = async () => {

@@ -38,6 +38,9 @@ const LoginPage = () => {
 
       localStorage.setItem('token', result.token);
       localStorage.setItem('user', JSON.stringify(result.user));
+      if (result.user?.idBenhNhan) {
+        localStorage.setItem('idBenhNhan', result.user.idBenhNhan);
+      }
 
       const role = normalizeRole(result.user?.role);
       const fallback = getDefaultPathForRole(result.user?.role);
