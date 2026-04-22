@@ -1,6 +1,4 @@
-const knex = require('../src/db');
-
-const createMorePatients = async () => {
+exports.seed = async function(knex) {
   try {
     const patientNames = [
       'Nguyễn Văn A',
@@ -19,7 +17,11 @@ const createMorePatients = async () => {
       const exists = await knex('BenhNhan').where({ hoTen: name }).first();
       if (!exists) {
         const cccd = `${Math.random().toString().substring(2, 14)}`.padEnd(12, '0');
-        const birthDate = new Date(1975 + Math.floor(Math.random() * 40), Math.floor(Math.random() * 12), 1 + Math.floor(Math.random() * 28));
+        const birthDate = new Date(
+          1975 + Math.floor(Math.random() * 40),
+          Math.floor(Math.random() * 12),
+          1 + Math.floor(Math.random() * 28)
+        );
 
         await knex('BenhNhan').insert({
           idBenhNhan: `BN-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
@@ -37,11 +39,7 @@ const createMorePatients = async () => {
     }
 
     console.log('✅ Created more patients');
-    process.exit(0);
   } catch (error) {
-    console.error('Error:', error);
-    process.exit(1);
+    console.error('❌ Error:', error);
   }
 };
-
-createMorePatients();

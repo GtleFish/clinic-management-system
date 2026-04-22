@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { CalendarIcon, Users, DollarSign, Stethoscope, Clock, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -14,34 +14,45 @@ import DoctorPerformanceTable from '@/components/admin/DoctorPerformanceTable';
 
 import statisticsService from '@/services/statisticsService';
 
+// Tính default date range: 1 tháng gần nhất
+const getDefaultDates = () => {
+  const today = new Date();
+  const from = new Date();
+  from.setMonth(today.getMonth() - 1);
+  return {
+    start: from.toISOString().split('T')[0],
+    end: today.toISOString().split('T')[0],
+  };
+};
+
 const ReportPage: React.FC = () => {
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const defaults = getDefaultDates();
+  const [startDate, setStartDate] = useState(defaults.start);
+  const [endDate, setEndDate] = useState(defaults.end);
   const [idKhoa, setIdKhoa] = useState<string | null>(null);
-  const [period, setPeriod] = useState<"daily" | "weekly" | "monthly" | "custom">("monthly");
 
   const [overview, setOverview] = useState<any>(null);
-  const [revenueData, setRevenueData] = useState<any>([]);
+  const [revenueData, setRevenueData] = useState<any[]>([]);
   const [comparisonData, setComparisonData] = useState<any>(null);
-  const [doctorShiftData, setDoctorShiftData] = useState<any>([]);
-  const [departmentData, setDepartmentData] = useState<any>([]);
-  const [doctorPerformance, setDoctorPerformance] = useState<any>([]);
-  const [loading, setLoading] = useState(true);
+  const [doctorShiftData, setDoctorShiftData] = useState<any[]>([]);
+  const [departmentData, setDepartmentData] = useState<any[]>([]);
+  const [doctorPerformance, setDoctorPerformance] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   // Gọi API khi filter thay đổi
-  const fetchAllData = async () => {
-    if (!startDate || !endDate) return;
+  const fetchAllData = async (from = startDate, to = endDate, khoa = idKhoa) => {
+    if (!from || !to) return;
     setLoading(true);
     try {
       const [overviewRes, revenueRes, comparisonRes, doctorShiftRes, deptRes, doctorPerfRes] =
         await Promise.all([
-          statisticsService.getOverview(startDate, endDate, idKhoa || undefined),
-          statisticsService.getRevenueData(startDate, endDate, idKhoa || undefined),
-          statisticsService.getMonthlyComparison(idKhoa || undefined),
-          statisticsService.getDoctorShiftStats(startDate, endDate, idKhoa || undefined),
-          statisticsService.getDepartmentStats(startDate, endDate),
-          statisticsService.getDoctorPerformance(startDate, endDate, idKhoa || undefined),
+          statisticsService.getOverview(from, to, khoa || undefined),
+          statisticsService.getRevenueData(from, to, khoa || undefined),
+          statisticsService.getMonthlyComparison(khoa || undefined),
+          statisticsService.getDoctorShiftStats(from, to, khoa || undefined),
+          statisticsService.getDepartmentStats(from, to),
+          statisticsService.getDoctorPerformance(from, to, khoa || undefined),
         ]);
 
       setOverview(overviewRes);
@@ -58,8 +69,17 @@ const ReportPage: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchAllData();
+    fetchAllData(startDate, endDate, idKhoa);
   }, [startDate, endDate, idKhoa]);
+
+  const handleDateRangeChange = useCallback((newStartDate: string, newEndDate: string) => {
+    setStartDate(newStartDate);
+    setEndDate(newEndDate);
+  }, []);
+
+  const handleDepartmentChange = useCallback((newIdKhoa: string | null) => {
+    setIdKhoa(newIdKhoa);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -79,7 +99,7 @@ const ReportPage: React.FC = () => {
               <p className="text-gray-500 mt-1">Theo dõi hoạt động khám chữa bệnh và doanh thu cọc</p>
             </div>
           </div>
-          <Button onClick={fetchAllData} disabled={loading}>
+          <Button onClick={() => fetchAllData()} disabled={loading}>
             <CalendarIcon className="w-4 h-4 mr-2" />
             Làm mới
           </Button>
@@ -87,13 +107,9 @@ const ReportPage: React.FC = () => {
 
         {/* FilterBar */}
         <FilterBar
-          onDateRangeChange={(newStartDate, newEndDate) => {
-            setStartDate(newStartDate);
-            setEndDate(newEndDate);
-          }}
-          onDepartmentChange={(newIdKhoa) => setIdKhoa(newIdKhoa)}
-          onPeriodChange={setPeriod}
-          departments={[]}
+          onDateRangeChange={handleDateRangeChange}
+          onDepartmentChange={handleDepartmentChange}
+          onPeriodChange={() => {}}
           isLoading={loading}
         />
 

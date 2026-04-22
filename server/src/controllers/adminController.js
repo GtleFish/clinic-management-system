@@ -342,14 +342,11 @@ const getStatisticsOverview = async (req, res) => {
   try {
     const { startDate, endDate, idKhoa } = req.query;
 
-    const fromDate = startDate || endDate ? startDate : undefined;
-    const toDate = startDate || endDate ? endDate : undefined;
-
-    if (!fromDate || !toDate) {
+    if (!startDate || !endDate) {
       return res.status(400).json({ message: 'startDate và endDate là bắt buộc' });
     }
 
-    const overview = await statisticsService.getOverview(fromDate, toDate, idKhoa);
+    const overview = await statisticsService.getOverview(startDate, endDate, idKhoa);
 
     // Transform backend response to match frontend expectation
     return res.status(200).json({

@@ -8,11 +8,14 @@ const knex = require('../db');
  */
 const getBookingStatistics = async (fromDate, toDate, idKhoa = null) => {
   try {
+    // Các trạng thái hợp lệ (không tính hủy)
+    const validStatuses = ['da_kham', 'dang_cho', 'da_dat', 'Đã xác nhận', 'da_checkin', 'cho_kham', 'Đã đến', 'Hoàn thành'];
+
     let query = knex('LichHen')
       .countDistinct('LichHen.idBenhNhan as count')
       .where('LichHen.ngayHen', '>=', fromDate)
       .where('LichHen.ngayHen', '<=', toDate)
-      .where('LichHen.trangThai', '!=', 'huy');
+      .whereIn('LichHen.trangThai', validStatuses);
 
     if (idKhoa) {
       query = query
@@ -21,7 +24,7 @@ const getBookingStatistics = async (fromDate, toDate, idKhoa = null) => {
     }
 
     const result = await query.first();
-    return result?.count || 0;
+    return parseInt(result?.count) || 0;
   } catch (err) {
     console.error('getBookingStatistics error:', err);
     throw err;
@@ -74,20 +77,26 @@ const getDepositRevenue = async (fromDate, toDate, idKhoa = null) => {
  */
 const getExaminationStatistics = async (fromDate, toDate, idKhoa = null) => {
   try {
+    // LichSuKham không có quan hệ trực tiếp với BacSi, chỉ có idBacSiTruong
+    // BacSiTruong không có idBacSi → không thể filter theo khoa qua BacSiTruong
     let query = knex('LichSuKham')
       .countDistinct('LichSuKham.idBenhNhan as count')
       .where('LichSuKham.ngayKham', '>=', fromDate)
       .where('LichSuKham.ngayKham', '<=', toDate);
 
+    // Nếu filter theo khoa: join qua LichHen để lấy idBacSi → Khoa
     if (idKhoa) {
-      query = query
-        .join('BacSiTruong', 'LichSuKham.idBacSiTruong', 'BacSiTruong.idBacSiTruong')
-        .leftJoin('BacSi', 'BacSiTruong.idBacSi', 'BacSi.idBacSi') // assuming relationship exists
+      query = knex('LichSuKham')
+        .countDistinct('LichSuKham.idBenhNhan as count')
+        .where('LichSuKham.ngayKham', '>=', fromDate)
+        .where('LichSuKham.ngayKham', '<=', toDate)
+        .join('LichHen', 'LichSuKham.idBenhNhan', 'LichHen.idBenhNhan')
+        .join('BacSi', 'LichHen.idBacSi', 'BacSi.idBacSi')
         .where('BacSi.idKhoa', idKhoa);
     }
 
     const result = await query.first();
-    return result?.count || 0;
+    return parseInt(result?.count) || 0;
   } catch (err) {
     console.error('getExaminationStatistics error:', err);
     throw err;
@@ -102,6 +111,9 @@ const getExaminationStatistics = async (fromDate, toDate, idKhoa = null) => {
  */
 const getDoctorExamCountByShift = async (fromDate, toDate, idKhoa = null) => {
   try {
+    // Dùng tất cả trạng thái hợp lệ (không tính hủy)
+    const validStatuses = ['da_kham', 'dang_cho', 'da_dat', 'Đã xác nhận', 'da_checkin', 'cho_kham', 'Đã đến', 'Hoàn thành'];
+
     let query = knex('LichHen')
       .select(
         'LichHen.gioHen',
@@ -115,7 +127,7 @@ const getDoctorExamCountByShift = async (fromDate, toDate, idKhoa = null) => {
       .join('Khoa', 'BacSi.idKhoa', 'Khoa.idKhoa')
       .where('LichHen.ngayHen', '>=', fromDate)
       .where('LichHen.ngayHen', '<=', toDate)
-      .whereIn('LichHen.trangThai', ['Đã đến', 'Hoàn thành', 'da_checkin', 'cho_kham'])
+      .whereIn('LichHen.trangThai', validStatuses)
       .groupBy('LichHen.gioHen', 'BacSi.idBacSi', 'BacSi.hoTen', 'Khoa.idKhoa', 'Khoa.tenKhoa')
       .orderBy('LichHen.gioHen');
 
@@ -184,6 +196,8 @@ const getMonthlyComparison = async (currentMonth, previousMonth, idKhoa = null) 
  */
 const getDepartmentBreakdown = async (fromDate, toDate) => {
   try {
+    const validStatuses = ['da_kham', 'dang_cho', 'da_dat', 'Đã xác nhận', 'da_checkin', 'cho_kham', 'Đã đến', 'Hoàn thành'];
+
     const result = await knex('LichHen')
       .select('Khoa.idKhoa', 'Khoa.tenKhoa')
       .count('LichHen.idBenhNhan as patientCount')
@@ -191,7 +205,7 @@ const getDepartmentBreakdown = async (fromDate, toDate) => {
       .join('Khoa', 'BacSi.idKhoa', 'Khoa.idKhoa')
       .where('LichHen.ngayHen', '>=', fromDate)
       .where('LichHen.ngayHen', '<=', toDate)
-      .where('LichHen.trangThai', '!=', 'huy')
+      .whereIn('LichHen.trangThai', validStatuses)
       .groupBy('Khoa.idKhoa', 'Khoa.tenKhoa')
       .orderBy('patientCount', 'desc');
 
@@ -210,6 +224,8 @@ const getDepartmentBreakdown = async (fromDate, toDate) => {
  */
 const getDoctorPerformance = async (fromDate, toDate, idKhoa = null) => {
   try {
+    const validStatuses = ['da_kham', 'dang_cho', 'da_dat', 'Đã xác nhận', 'da_checkin', 'cho_kham', 'Đã đến', 'Hoàn thành'];
+
     let query = knex('LichHen')
       .select(
         'BacSi.idBacSi',
@@ -222,7 +238,7 @@ const getDoctorPerformance = async (fromDate, toDate, idKhoa = null) => {
       .join('Khoa', 'BacSi.idKhoa', 'Khoa.idKhoa')
       .where('LichHen.ngayHen', '>=', fromDate)
       .where('LichHen.ngayHen', '<=', toDate)
-      .where('LichHen.trangThai', '!=', 'huy')
+      .whereIn('LichHen.trangThai', validStatuses)
       .groupBy('BacSi.idBacSi', 'BacSi.hoTen', 'BacSi.chuyenKhoa', 'Khoa.tenKhoa')
       .orderBy('appointmentCount', 'desc');
 
