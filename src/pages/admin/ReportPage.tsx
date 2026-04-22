@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { CalendarIcon, Users, DollarSign, Stethoscope, Clock } from 'lucide-react';
+import { CalendarIcon, Users, DollarSign, Stethoscope, Clock, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 import FilterBar from '@/components/admin/FilterBar';
 import StatsCard from '@/components/admin/StatsCard';
@@ -26,6 +27,7 @@ const ReportPage: React.FC = () => {
   const [departmentData, setDepartmentData] = useState<any>([]);
   const [doctorPerformance, setDoctorPerformance] = useState<any>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   // Gọi API khi filter thay đổi
   const fetchAllData = async () => {
@@ -68,9 +70,14 @@ const ReportPage: React.FC = () => {
       >
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Báo cáo thống kê & Doanh thu</h1>
-            <p className="text-gray-500 mt-1">Theo dõi hoạt động khám chữa bệnh và doanh thu cọc</p>
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" onClick={() => navigate('/admin')} className="p-2">
+              <ArrowLeft className="w-4 h-4" />
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Báo cáo thống kê & Doanh thu</h1>
+              <p className="text-gray-500 mt-1">Theo dõi hoạt động khám chữa bệnh và doanh thu cọc</p>
+            </div>
           </div>
           <Button onClick={fetchAllData} disabled={loading}>
             <CalendarIcon className="w-4 h-4 mr-2" />
