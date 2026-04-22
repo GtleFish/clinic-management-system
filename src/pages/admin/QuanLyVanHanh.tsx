@@ -5,6 +5,9 @@ import {
   huyLichHen,
   doiLichXuongCuoi,
 } from '../../services/adminService';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 // ── Types ──────────────────────────────────────────────────
 interface LichHen {
@@ -59,6 +62,7 @@ export default function QuanLyVanHanh() {
   const [filterStatus, setFilterStatus] = useState('all');
   const [toast, setToast]             = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [lateDialog, setLateDialog]   = useState<LichHen | null>(null);
+  const navigate = useNavigate();
 
   const showToast = (type: 'success' | 'error', message: string) => {
     setToast({ type, message });
@@ -165,9 +169,14 @@ export default function QuanLyVanHanh() {
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Quản lý Check-in</h1>
-        <p className="text-sm text-gray-500 mt-1">Hệ thống tự động hủy các lịch hẹn trễ 30 phút</p>
+      <div className="mb-6 flex items-center gap-4">
+        <Button variant="ghost" onClick={() => navigate('/admin')} className="p-2">
+          <ArrowLeft className="w-4 h-4" />
+        </Button>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">Quản lý Check-in</h1>
+          <p className="text-sm text-gray-500 mt-1">Hệ thống tự động hủy các lịch hẹn trễ 30 phút</p>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">

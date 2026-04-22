@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Activity, Plus, Search, UserCog, X } from 'lucide-react';
+import { Activity, Plus, Search, UserCog, X, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
 import DoctorForm from '../../components/admin/DoctorForm';
 import {
@@ -23,6 +24,7 @@ export default function QuanLyTaiKhoan() {
   const [filterKhoa,  setFilterKhoa]  = useState('');
   const [toast,       setToast]       = useState(null); // { type, message }
   const [showDefaultPw, setShowDefaultPw] = useState(null); // mật khẩu mặc định sau khi tạo
+  const navigate = useNavigate();
 
   // ── Fetch dữ liệu ─────────────────────────────────────────
   const fetchDoctors = useCallback(async () => {
@@ -118,14 +120,19 @@ export default function QuanLyTaiKhoan() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
         >
-          <div>
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-medium text-primary">
-              <Activity className="h-3.5 w-3.5" /> US-ADM-01
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" onClick={() => navigate('/admin')} className="p-2">
+              <ArrowLeft className="w-4 h-4" />
+            </Button>
+            <div>
+              <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-medium text-primary">
+                <Activity className="h-3.5 w-3.5" /> US-ADM-01
+              </div>
+              <h1 className="text-3xl font-bold font-heading text-primary">Quản lý tài khoản bác sĩ</h1>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Tạo và quản lý tài khoản nhân viên y tế trong hệ thống.
+              </p>
             </div>
-            <h1 className="text-3xl font-bold font-heading text-primary">Quản lý tài khoản bác sĩ</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Tạo và quản lý tài khoản nhân viên y tế trong hệ thống.
-            </p>
           </div>
           <Button onClick={handleOpenCreate} className="gradient-primary text-primary-foreground gap-2 shadow-hero">
             <Plus className="h-4 w-4" /> Thêm bác sĩ
