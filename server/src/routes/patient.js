@@ -7,9 +7,13 @@ const {
   getSoLuongDatTrongNgay,
   getLichSuKham,
   getDonThuoc,
+  getDanhSachKhoa,
+  getDanhSachBacSi,
 } = require("../controllers/patientController");
 
-/** Đặt lịch / xem số chỗ còn — cho phép khách chưa đăng nhập */
+/** Public — không cần đăng nhập */
+router.get("/khoa", getDanhSachKhoa);
+router.get("/bacsi", getDanhSachBacSi);
 router.post("/booking", datLichKham);
 router.get("/booking/counts", getSoLuongDatTrongNgay);
 

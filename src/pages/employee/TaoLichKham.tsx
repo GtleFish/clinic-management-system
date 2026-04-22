@@ -27,13 +27,26 @@ const GIO_KHAM = [
   '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30',
 ];
 
+// --- ĐÃ ĐỒNG BỘ MÀU SẮC VỚI BÊN QUẢN LÝ VẬN HÀNH ---
 const STATUS_COLOR: Record<string, string> = {
-  'Đã đặt lịch':  'bg-blue-100 text-blue-700',
-  'Đã xác nhận':  'bg-green-100 text-green-700',
-  'Đã đến':       'bg-purple-100 text-purple-700',
-  'Chờ khám':     'bg-yellow-100 text-yellow-700',
-  'Hoàn thành':   'bg-gray-100 text-gray-600',
-  'Hủy':          'bg-red-100 text-red-600',
+  // Nhóm Đã đặt lịch / Đã xác nhận (Màu xám/xanh)
+  'da_dat':      'bg-blue-100 text-blue-700',
+  'Đã đặt lịch': 'bg-blue-100 text-blue-700',
+  'Đã xác nhận': 'bg-green-100 text-green-700',
+
+  // Nhóm Chờ khám (Màu vàng)
+  'cho_kham':    'bg-yellow-100 text-yellow-700',
+  'Chờ khám':    'bg-yellow-100 text-yellow-700',
+
+  // Nhóm Hoàn thành / Đã khám (Màu xám)
+  'hoan_thanh':  'bg-gray-100 text-gray-600',
+  'Hoàn thành':  'bg-gray-100 text-gray-600',
+  'da_kham':     'bg-gray-100 text-gray-600',
+
+  // Nhóm Hủy (Màu đỏ)
+  'huy':         'bg-red-100 text-red-600',
+  'Hủy':         'bg-red-100 text-red-600',
+  'Đã hủy':      'bg-red-100 text-red-600',
 };
 
 function validate(f: FormData): FormErrors {
@@ -175,9 +188,9 @@ export default function TaoLichKham() {
           className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
           {[
             { label: 'Tổng hôm nay', value: lichList.length },
-            { label: 'Chờ khám', value: lichList.filter(l => l.trangThai === 'Chờ khám').length },
+            { label: 'Chờ khám', value: lichList.filter(l => l.trangThai === 'Chờ khám' || l.trangThai === 'cho_kham').length },
             { label: 'Đã xác nhận', value: lichList.filter(l => l.trangThai === 'Đã xác nhận').length },
-            { label: 'Hoàn thành', value: lichList.filter(l => l.trangThai === 'Hoàn thành').length },
+            { label: 'Hoàn thành', value: lichList.filter(l => l.trangThai === 'Hoàn thành' || l.trangThai === 'hoan_thanh').length },
           ].map((s, i) => (
             <div key={i} className="rounded-xl border border-border bg-card p-4 shadow-card">
               <p className="text-2xl font-bold font-heading text-primary">{s.value}</p>
@@ -246,13 +259,17 @@ export default function TaoLichKham() {
                     <p className="text-sm font-medium">{lh.tenBacSi}</p>
                     <p className="text-xs text-muted-foreground">{lh.tenKhoa}</p>
                   </div>
-                  {['Đã đặt lịch', 'Đã xác nhận'].includes(lh.trangThai) ? (
+                  {['Đã đặt lịch', 'Đã xác nhận', 'da_dat'].includes(lh.trangThai) ? (
                     <Button size="sm" className="gradient-primary text-primary-foreground" onClick={() => openCheckin(lh)}>
                       Check-in
                     </Button>
                   ) : (
                     <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${STATUS_COLOR[lh.trangThai] || 'bg-gray-100 text-gray-600'}`}>
-                      {lh.trangThai}
+                      {/* Hiển thị tiếng Việt nếu DB lưu mã */}
+                      {lh.trangThai === 'cho_kham' ? 'Chờ khám' :
+                       lh.trangThai === 'hoan_thanh' ? 'Hoàn thành' :
+                       lh.trangThai === 'da_kham' ? 'Hoàn thành' :
+                       lh.trangThai === 'huy' ? 'Đã hủy' : lh.trangThai}
                     </span>
                   )}
                 </div>

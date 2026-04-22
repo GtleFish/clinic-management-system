@@ -1,6 +1,81 @@
 const knex = require("../db");
 const { v4: uuidv4 } = require("uuid");
 
+// ── Public: Danh sách khoa (cho trang đặt lịch) ────────────
+const getDanhSachKhoa = async (req, res) => {
+  try {
+    const khoa = await knex('Khoa')
+      .select('Khoa.idKhoa', 'Khoa.tenKhoa', 'Khoa.moTa')
+      .orderBy('Khoa.tenKhoa');
+
+    // Đếm số bác sĩ mỗi khoa
+    const counts = await knex('BacSi')
+      .select('idKhoa')
+      .count('* as total')
+      .groupBy('idKhoa');
+
+    const countMap = {};
+    counts.forEach((c) => { countMap[c.idKhoa] = c.total; });
+
+    const data = khoa.map((k) => ({
+      id: k.idKhoa,
+      name: k.tenKhoa,
+      description: k.moTa || '',
+      doctorCount: countMap[k.idKhoa] || 0,
+    }));
+
+    return res.json({ data });
+  } catch (err) {
+    console.error('getDanhSachKhoa error:', err);
+    return res.status(500).json({ message: 'Lỗi server' });
+  }
+};
+
+// ── Public: Danh sách bác sĩ (cho trang đặt lịch) ──────────
+const getDanhSachBacSi = async (req, res) => {
+  try {
+    const { idKhoa } = req.query;
+
+    let query = knex('BacSi')
+      .join('Khoa', 'BacSi.idKhoa', 'Khoa.idKhoa')
+      .select(
+        'BacSi.idBacSi',
+        'BacSi.hoTen',
+        'BacSi.chuyenKhoa',
+        'BacSi.namKinhNghiem',
+        'BacSi.idKhoa',
+        'Khoa.tenKhoa',
+      )
+      .orderBy('BacSi.hoTen');
+
+    if (idKhoa) {
+      query = query.where('BacSi.idKhoa', idKhoa);
+    }
+
+    const doctors = await query;
+
+    const data = doctors.map((d) => ({
+      id: d.idBacSi,
+      name: `BS. ${d.hoTen}`,
+      departmentId: d.idKhoa,
+      departmentName: d.tenKhoa,
+      title: 'BS',
+      specialization: d.chuyenKhoa,
+      experience: d.namKinhNghiem,
+      avatar: '',
+      rating: 4.5,
+      reviewCount: 0,
+      available: true,
+      consultationFee: 300000,
+    }));
+
+    return res.json({ data });
+  } catch (err) {
+    console.error('getDanhSachBacSi error:', err);
+    return res.status(500).json({ message: 'Lỗi server' });
+  }
+};
+
 // 1. Khách hàng đặt lịch khám
 const datLichKham = async (req, res) => {
   try {
@@ -137,4 +212,6 @@ module.exports = {
   getSoLuongDatTrongNgay,
   getLichSuKham,
   getDonThuoc,
+  getDanhSachKhoa,
+  getDanhSachBacSi,
 };

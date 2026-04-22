@@ -3,11 +3,11 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Calendar, Check, CreditCard, ArrowLeft, ArrowRight, Star } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { motion } from 'framer-motion';
-import { departments, doctors } from '../data/mockData'; 
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import { useToast } from '../hooks/use-toast';
-import { createBooking, getBookingCounts } from '../services/patientService';
+import { createBooking, getBookingCounts, getDanhSachKhoa, getDanhSachBacSi } from '../services/patientService';
+import type { Department, Doctor } from '@/types';
 
 const steps = ['Chọn khoa', 'Chọn bác sĩ', 'Chọn thời gian', 'Xác nhận & Cọc'];
 
@@ -31,6 +31,26 @@ const BookingPage = () => {
   const [selectedTime, setSelectedTime] = useState('');
   
   const [bookingCounts, setBookingCounts] = useState<Record<string, number>>({});
+
+  // ── Dữ liệu động từ database ──
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [khoaRes, bsRes] = await Promise.all([getDanhSachKhoa(), getDanhSachBacSi()]);
+        setDepartments(khoaRes.data);
+        setDoctors(bsRes.data);
+      } catch (err) {
+        console.error('Lỗi tải dữ liệu khoa/bác sĩ:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   const toggleDept = (id: string) => {
     setSelectedDepts((prev) => prev.includes(id) ? prev.filter((d) => d !== id) : [...prev, id]);
@@ -127,7 +147,12 @@ const BookingPage = () => {
         <motion.div key={step} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }}>
           
           {/* Step 0: Chọn Khoa (Trải rộng full) */}
-          {step === 0 && (
+          {step === 0 && loading && (
+            <div className="flex justify-center py-12">
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+            </div>
+          )}
+          {step === 0 && !loading && (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {departments.map((dept) => (
                 <button

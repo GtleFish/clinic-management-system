@@ -84,12 +84,12 @@ exports.seed = async function(knex) {
     },
   ]);
 
-  // ── LichHen ───────────────────────────────────
+ // ── LichHen ───────────────────────────────────
   await knex('LichHen').insert([
     {
       idLichHen:   'LH-001',
-      ngayHen:     '2026-03-20',
-      gioHen:      '09:00:00',
+      ngayHen:     '2026-04-22', // Ngày hôm nay
+      gioHen:      '00:30:00',   // Giờ hẹn lúc 00:30 sáng (để lúc 1:07 là đã trễ > 30p)
       trangThai:   'Đã xác nhận',
       idBenhNhan:  'BN-001',
       idBacSi:     'BS-001',
