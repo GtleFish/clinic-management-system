@@ -81,8 +81,7 @@ const getExaminationStatistics = async (fromDate, toDate, idKhoa = null) => {
 
     if (idKhoa) {
       query = query
-        .join('BacSiTruong', 'LichSuKham.idBacSiTruong', 'BacSiTruong.idBacSiTruong')
-        .leftJoin('BacSi', 'BacSiTruong.idBacSi', 'BacSi.idBacSi') // assuming relationship exists
+        .join('BacSi', 'LichSuKham.idBacSi', 'BacSi.idBacSi')
         .where('BacSi.idKhoa', idKhoa);
     }
 
