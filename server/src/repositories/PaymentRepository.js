@@ -16,7 +16,7 @@ class PaymentRepository {
     } = paymentData;
 
     const idThanhToan = `TT-${uuidv4().slice(0, 8).toUpperCase()}`;
-    const ngayTao = new Date().toISOString();
+    const ngayTao = new Date().toISOString().slice(0, 19).replace('T', ' '); // MySQL datetime format
 
     try {
       await knex('ThanhToan').insert({
@@ -99,7 +99,7 @@ class PaymentRepository {
 
       // If status is being changed to completed, set completion date
       if (trangThai === 'thanh_toan_du') {
-        updateData.ngayThanhToan = new Date().toISOString();
+        updateData.ngayThanhToan = new Date().toISOString().slice(0, 19).replace('T', ' ');
       }
 
       const result = await knex('ThanhToan')

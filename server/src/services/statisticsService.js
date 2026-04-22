@@ -39,29 +39,28 @@ const getBookingStatistics = async (fromDate, toDate, idKhoa = null) => {
  */
 const getDepositRevenue = async (fromDate, toDate, idKhoa = null) => {
   try {
+    // Tính tất cả thanh toán — kể cả lịch hủy, chỉ loại trừ hoàn tiền
     let query = knex('ThanhToan')
       .sum('soTienCoc as totalRevenue')
       .count('* as totalPayments')
       .where('ThanhToan.ngayTao', '>=', `${fromDate} 00:00:00`)
-      .where('ThanhToan.ngayTao', '<=', `${toDate} 23:59:59`)
-      .where('ThanhToan.trangThai', '!=', 'tra_lai');
+      .where('ThanhToan.ngayTao', '<=', `${toDate} 23:59:59`);
 
     if (idKhoa) {
-      // Join with LichHen to filter by department
       query = query
         .leftJoin('LichHen', 'ThanhToan.idLichHen', 'LichHen.idLichHen')
         .leftJoin('BacSi', 'LichHen.idBacSi', 'BacSi.idBacSi')
         .where(builder => {
           builder
             .where('BacSi.idKhoa', idKhoa)
-            .orWhereNull('LichHen.idLichHen'); // Include standalone payments
+            .orWhereNull('LichHen.idLichHen');
         });
     }
 
     const result = await query.first();
     return {
       totalRevenue: result?.totalRevenue ? parseFloat(result.totalRevenue) : 0,
-      totalPayments: result?.totalPayments || 0,
+      totalPayments: parseInt(result?.totalPayments) || 0,
     };
   } catch (err) {
     console.error('getDepositRevenue error:', err);
@@ -268,7 +267,6 @@ const getDailyRevenueData = async (fromDate, toDate, idKhoa = null) => {
       .count('* as paymentCount')
       .where('ThanhToan.ngayTao', '>=', `${fromDate} 00:00:00`)
       .where('ThanhToan.ngayTao', '<=', `${toDate} 23:59:59`)
-      .where('ThanhToan.trangThai', '!=', 'tra_lai')
       .groupBy(knex.raw('DATE(ngayTao)'))
       .orderBy('date', 'asc');
 

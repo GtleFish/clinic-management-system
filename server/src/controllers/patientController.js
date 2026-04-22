@@ -1,5 +1,8 @@
 const knex = require("../db");
 const { v4: uuidv4 } = require("uuid");
+const PaymentRepository = require("../repositories/PaymentRepository");
+
+const PHI_COC_DAT_LICH = 100000;  // Tiền cọc khi đặt lịch
 
 // ── Public: Danh sách khoa (cho trang đặt lịch) ────────────
 const getDanhSachKhoa = async (req, res) => {
@@ -103,15 +106,30 @@ const datLichKham = async (req, res) => {
       idBenhNhan: patient.idBenhNhan,
       idBacSi,
       ngayHen,
-      gioHen, // Định dạng: '07:00:00'
+      gioHen,
       trangThai: "da_dat",
       ghiChu: ghiChu || "Đặt lịch qua Web"
     });
 
+    // Tự động tạo bản ghi thanh toán tiền cọc khi đặt lịch
+    try {
+      await PaymentRepository.create({
+        idBenhNhan: patient.idBenhNhan,
+        idLichHen,
+        soTienCoc: PHI_COC_DAT_LICH,
+        loaiThanhToan: 'khi_dat_lich',
+        trangThai: 'da_coc',
+        ghiChu: 'Tiền cọc đặt lịch qua Web',
+      });
+    } catch (paymentErr) {
+      console.error('Lỗi tạo thanh toán:', paymentErr);
+      // Vẫn trả về success vì lịch hẹn đã được tạo
+    }
+
     return res.status(201).json({ message: "Đặt lịch thành công!" });
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: "Lỗi server" });
+    console.error('datLichKham error:', err);
+    return res.status(500).json({ message: "Lỗi server", error: err.message });
   }
 };
 

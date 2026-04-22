@@ -4,6 +4,8 @@ const { v4: uuidv4 } = require('uuid');
 const statisticsService = require('../services/statisticsService');
 const PaymentRepository = require('../repositories/PaymentRepository');
 
+const PHI_KHAM = 300000; // Phí khám khi check-in
+
 /**
  * [AC1] Tạo tài khoản bác sĩ mới
  * POST /api/admin/doctors
@@ -278,7 +280,22 @@ const checkInLichHen = async (req, res) => {
     }
  
     await knex('LichHen').where({ idLichHen }).update({ trangThai: 'cho_kham' });
- 
+
+    // Tạo bản ghi thanh toán phí khám khi check-in (nếu chưa có)
+    const existingCheckInPayment = await knex('ThanhToan')
+      .where({ idLichHen, loaiThanhToan: 'khi_den_kham' })
+      .first();
+    if (!existingCheckInPayment) {
+      await PaymentRepository.create({
+        idBenhNhan: lichHen.idBenhNhan,
+        idLichHen,
+        soTienCoc: PHI_KHAM,
+        loaiThanhToan: 'khi_den_kham',
+        trangThai: 'da_coc',
+        ghiChu: 'Phí khám khi check-in',
+      });
+    }
+
     return res.status(200).json({ message: 'Check-in thành công (Đang chờ khám)' });
   } catch (err) {
     console.error('checkInLichHen error:', err);

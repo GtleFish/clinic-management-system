@@ -1,5 +1,9 @@
 const knex   = require('../db');
 const { v4: uuidv4 } = require('uuid');
+const PaymentRepository = require('../repositories/PaymentRepository');
+
+const PHI_COC_DAT_LICH = 100000;  // Tiền cọc khi đặt lịch tại quầy
+const PHI_KHAM = 300000;          // Phí khám khi check-in
 
 // ══════════════════════════════════════════════════════════
 //  US-EMP-01 — Quản lý thông tin bệnh nhân
@@ -168,9 +172,23 @@ const createLichHen = async (req, res) => {
       ngayHen,
       gioHen,
       trangThai:      'Đã đặt lịch',
-      //daThanhToanCoc: false,
       ghiChu:         ghiChu || null,
     });
+
+    // Tự động tạo bản ghi thanh toán tiền cọc khi đặt lịch tại quầy
+    try {
+      await PaymentRepository.create({
+        idBenhNhan,
+        idLichHen,
+        soTienCoc: PHI_COC_DAT_LICH,
+        loaiThanhToan: 'khi_dat_lich',
+        trangThai: 'da_coc',
+        ghiChu: 'Tiền cọc đặt lịch tại quầy',
+      });
+    } catch (paymentErr) {
+      console.error('Lỗi tạo thanh toán:', paymentErr);
+      // Vẫn tiếp tục vì lịch hẹn đã được tạo
+    }
 
     // Trả về đầy đủ thông tin
     const created = await knex('LichHen')
@@ -244,6 +262,21 @@ const checkIn = async (req, res) => {
         trangThai: "Đã đến",
         ghiChu: ghiChu !== undefined ? ghiChu : lichHen.ghiChu,
       });
+
+    // Tạo bản ghi thanh toán phí khám khi check-in (nếu chưa có)
+    const existingCheckInPayment = await knex('ThanhToan')
+      .where({ idLichHen, loaiThanhToan: 'khi_den_kham' })
+      .first();
+    if (!existingCheckInPayment) {
+      await PaymentRepository.create({
+        idBenhNhan: lichHen.idBenhNhan,
+        idLichHen,
+        soTienCoc: PHI_KHAM,
+        loaiThanhToan: 'khi_den_kham',
+        trangThai: 'da_coc',
+        ghiChu: 'Phí khám khi check-in',
+      });
+    }
 
     const updated = await knex("LichHen")
       .join("BenhNhan", "LichHen.idBenhNhan", "BenhNhan.idBenhNhan")
