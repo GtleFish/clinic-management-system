@@ -1,6 +1,8 @@
 const knex = require('../db');
 const bcrypt = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
+const statisticsService = require('../services/statisticsService');
+const PaymentRepository = require('../repositories/PaymentRepository');
 
 /**
  * [AC1] Tạo tài khoản bác sĩ mới
@@ -332,6 +334,213 @@ const doiLichXuongCuoi = async (req, res) => {
   }
 };
 
+/**
+ * Lấy tổng quan thống kê (4 chỉ số cơ bản)
+ * GET /api/admin/statistics/overview?fromDate=&toDate=&idKhoa=
+ */
+const getStatisticsOverview = async (req, res) => {
+  try {
+    const { startDate, endDate, idKhoa } = req.query;
+
+    const fromDate = startDate || endDate ? startDate : undefined;
+    const toDate = startDate || endDate ? endDate : undefined;
+
+    if (!fromDate || !toDate) {
+      return res.status(400).json({ message: 'startDate và endDate là bắt buộc' });
+    }
+
+    const overview = await statisticsService.getOverview(fromDate, toDate, idKhoa);
+
+    // Transform backend response to match frontend expectation
+    return res.status(200).json({
+      bookingCount: overview.metrics.totalBookings,
+      depositRevenue: overview.metrics.totalRevenue,
+      examinationCount: overview.metrics.totalExaminations,
+      doctorExamCount: overview.metrics.totalExamsByShift,
+    });
+  } catch (err) {
+    console.error('getStatisticsOverview error:', err);
+    return res.status(500).json({ message: 'Lỗi server, vui lòng thử lại' });
+  }
+};
+
+/**
+ * Lấy dữ liệu doanh thu hàng ngày (cho line chart)
+ * GET /api/admin/statistics/revenue?fromDate=&toDate=&idKhoa=
+ */
+const getRevenueData = async (req, res) => {
+  try {
+    const { startDate, endDate, idKhoa } = req.query;
+
+    if (!startDate || !endDate) {
+      return res.status(400).json({ message: 'startDate và endDate là bắt buộc' });
+    }
+
+    const data = await statisticsService.getDailyRevenueData(startDate, endDate, idKhoa);
+
+    return res.status(200).json(data);
+  } catch (err) {
+    console.error('getRevenueData error:', err);
+    return res.status(500).json({ message: 'Lỗi server, vui lòng thử lại' });
+  }
+};
+
+/**
+ * So sánh thống kê 2 tháng
+ * GET /api/admin/statistics/comparison?month1=&month2=&idKhoa=
+ */
+const getMonthlyComparison = async (req, res) => {
+  try {
+    const { month1, month2, idKhoa } = req.query;
+
+    if (!month1 || !month2) {
+      return res.status(400).json({ message: 'month1 và month2 là bắt buộc (format: YYYY-MM)' });
+    }
+
+    const comparison = await statisticsService.getMonthlyComparison(month1, month2, idKhoa);
+
+    return res.status(200).json({ data: comparison });
+  } catch (err) {
+    console.error('getMonthlyComparison error:', err);
+    return res.status(500).json({ message: 'Lỗi server, vui lòng thử lại' });
+  }
+};
+
+/**
+ * Lấy số lần bác sĩ khám theo ca
+ * GET /api/admin/statistics/doctor-shift?fromDate=&toDate=&idKhoa=
+ */
+const getDoctorShiftStats = async (req, res) => {
+  try {
+    const { fromDate, toDate, idKhoa } = req.query;
+
+    if (!fromDate || !toDate) {
+      return res.status(400).json({ message: 'fromDate và toDate là bắt buộc' });
+    }
+
+    const data = await statisticsService.getDoctorExamCountByShift(fromDate, toDate, idKhoa);
+
+    return res.status(200).json({ data });
+  } catch (err) {
+    console.error('getDoctorShiftStats error:', err);
+    return res.status(500).json({ message: 'Lỗi server, vui lòng thử lại' });
+  }
+};
+
+/**
+ * Phân bổ bệnh nhân theo khoa
+ * GET /api/admin/statistics/departments?fromDate=&toDate=
+ */
+const getDepartmentStats = async (req, res) => {
+  try {
+    const { fromDate, toDate } = req.query;
+
+    if (!fromDate || !toDate) {
+      return res.status(400).json({ message: 'fromDate và toDate là bắt buộc' });
+    }
+
+    const data = await statisticsService.getDepartmentBreakdown(fromDate, toDate);
+
+    return res.status(200).json({ data });
+  } catch (err) {
+    console.error('getDepartmentStats error:', err);
+    return res.status(500).json({ message: 'Lỗi server, vui lòng thử lại' });
+  }
+};
+
+/**
+ * Chi tiết hiệu suất bác sĩ
+ * GET /api/admin/statistics/doctor-detail?fromDate=&toDate=&idKhoa=
+ */
+const getDoctorDetailStats = async (req, res) => {
+  try {
+    const { fromDate, toDate, idKhoa } = req.query;
+
+    if (!fromDate || !toDate) {
+      return res.status(400).json({ message: 'fromDate và toDate là bắt buộc' });
+    }
+
+    const data = await statisticsService.getDoctorPerformance(fromDate, toDate, idKhoa);
+
+    return res.status(200).json({ data });
+  } catch (err) {
+    console.error('getDoctorDetailStats error:', err);
+    return res.status(500).json({ message: 'Lỗi server, vui lòng thử lại' });
+  }
+};
+
+/**
+ * Tạo bản ghi thanh toán
+ * POST /api/admin/payments
+ */
+const createPayment = async (req, res) => {
+  const { idBenhNhan, idLichHen, soTienCoc, loaiThanhToan, ghiChu } = req.body;
+
+  try {
+    if (!idBenhNhan || !soTienCoc || !loaiThanhToan) {
+      return res.status(400).json({ message: 'idBenhNhan, soTienCoc, loaiThanhToan là bắt buộc' });
+    }
+
+    // Kiểm tra bệnh nhân tồn tại
+    const patient = await knex('BenhNhan').where({ idBenhNhan }).first();
+    if (!patient) {
+      return res.status(404).json({ message: 'Bệnh nhân không tồn tại' });
+    }
+
+    const payment = await PaymentRepository.create({
+      idBenhNhan,
+      idLichHen: idLichHen || null,
+      soTienCoc: parseFloat(soTienCoc),
+      loaiThanhToan,
+      trangThai: 'da_coc',
+      ghiChu: ghiChu || null,
+    });
+
+    return res.status(201).json({
+      message: 'Tạo bản ghi thanh toán thành công',
+      data: payment,
+    });
+  } catch (err) {
+    console.error('createPayment error:', err);
+    return res.status(500).json({ message: 'Lỗi server, vui lòng thử lại' });
+  }
+};
+
+/**
+ * Cập nhật trạng thái thanh toán
+ * PATCH /api/admin/payments/:idThanhToan
+ */
+const updatePaymentStatus = async (req, res) => {
+  const { idThanhToan } = req.params;
+  const { trangThai } = req.body;
+
+  try {
+    if (!trangThai || !['da_coc', 'thanh_toan_du', 'tra_lai'].includes(trangThai)) {
+      return res.status(400).json({ message: 'Trạng thái không hợp lệ' });
+    }
+
+    const payment = await PaymentRepository.findById(idThanhToan);
+    if (!payment) {
+      return res.status(404).json({ message: 'Bản ghi thanh toán không tồn tại' });
+    }
+
+    const updated = await PaymentRepository.updateStatus(idThanhToan, trangThai);
+
+    if (updated) {
+      const updatedPayment = await PaymentRepository.findById(idThanhToan);
+      return res.status(200).json({
+        message: 'Cập nhật trạng thái thành công',
+        data: updatedPayment,
+      });
+    }
+
+    return res.status(500).json({ message: 'Cập nhật thất bại' });
+  } catch (err) {
+    console.error('updatePaymentStatus error:', err);
+    return res.status(500).json({ message: 'Lỗi server, vui lòng thử lại' });
+  }
+};
+
 module.exports = {
   createDoctor,
   getDoctors,
@@ -344,4 +553,14 @@ module.exports = {
   checkInLichHen,
   huyLichHen,
   doiLichXuongCuoi,
+  // statistics
+  getStatisticsOverview,
+  getRevenueData,
+  getMonthlyComparison,
+  getDoctorShiftStats,
+  getDepartmentStats,
+  getDoctorDetailStats,
+  // payments
+  createPayment,
+  updatePaymentStatus,
 };

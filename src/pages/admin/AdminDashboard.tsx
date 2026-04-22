@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Activity, CalendarCheck, Shield, Users } from "lucide-react";
+import { Activity, CalendarCheck, Shield, Users, BarChart3 } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 
@@ -26,6 +26,13 @@ const cards = [
     path: "/admin/checkin",
     action: "Đi tới check-in",
   },
+  {
+    title: "Báo cáo thống kê",
+    desc: "Xem báo cáo doanh thu, số bệnh nhân và hiệu suất bác sĩ.",
+    icon: BarChart3,
+    path: "/admin/report",
+    action: "Đi tới báo cáo",
+  },
 ];
 
 export default function AdminDashboard() {
@@ -47,7 +54,7 @@ export default function AdminDashboard() {
           </p>
         </motion.div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {cards.map((card, i) => (
             <motion.div
               key={card.path}

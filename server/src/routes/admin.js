@@ -10,11 +10,20 @@ const {
   updateDoctor,
   deleteDoctor,
   getKhoa,
-  getLichHenHomNay,
+  getTatCaLichHen,
   checkInLichHen,
   huyLichHen,
   doiLichXuongCuoi,
-  getTatCaLichHen,
+  // statistics
+  getStatisticsOverview,
+  getRevenueData,
+  getMonthlyComparison,
+  getDoctorShiftStats,
+  getDepartmentStats,
+  getDoctorDetailStats,
+  // payments
+  createPayment,
+  updatePaymentStatus,
 } = require('../controllers/adminController');
 
 router.use(authenticate, authorize('admin'));
@@ -38,5 +47,25 @@ router.patch('/lich-hen/:idLichHen/doi-cuoi',  doiLichXuongCuoi);
 // ── Khoa (dropdown) ────────────────────────────────────────
 // GET /api/admin/khoa
 router.get('/khoa', getKhoa);
+
+// ── Thống kê & Báo cáo ────────────────────────────────────────
+// GET /api/admin/statistics/overview
+// GET /api/admin/statistics/revenue
+// GET /api/admin/statistics/comparison
+// GET /api/admin/statistics/doctor-shift
+// GET /api/admin/statistics/departments
+// GET /api/admin/statistics/doctor-detail
+router.get('/statistics/overview', getStatisticsOverview);
+router.get('/statistics/revenue', getRevenueData);
+router.get('/statistics/comparison', getMonthlyComparison);
+router.get('/statistics/doctor-shift', getDoctorShiftStats);
+router.get('/statistics/departments', getDepartmentStats);
+router.get('/statistics/doctor-detail', getDoctorDetailStats);
+
+// ── Thanh toán & Tiền cọc ────────────────────────────────────
+// POST /api/admin/payments
+// PATCH /api/admin/payments/:idThanhToan
+router.post('/payments', createPayment);
+router.patch('/payments/:idThanhToan', updatePaymentStatus);
 
 module.exports = router;

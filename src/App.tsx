@@ -19,6 +19,7 @@ import QuanLyBenhNhan from "./pages/employee/QuanLyBenhNhan";
 import TaoLichKham from "./pages/employee/TaoLichKham";
 import QuanLyVanHanh from "./pages/admin/QuanLyVanHanh";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import ReportPage from "./pages/admin/ReportPage";
 
 import DoctorDashboard from "./pages/doctor/DoctorDashboard";
 import DoctorExamination from "./pages/doctor/DoctorExamination";
@@ -62,6 +63,7 @@ const App = () => (
             <Route path="/admin/doctors" element={<QuanLyTaiKhoan />} />
             <Route path="/admin/patients" element={<QuanLyBenhNhan />} />
             <Route path="/admin/checkin" element={<QuanLyVanHanh />} />
+            <Route path="/admin/report" element={<ReportPage />} />
           </Route>
 
           {/* Nhân viên */}
