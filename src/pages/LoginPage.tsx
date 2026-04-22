@@ -37,6 +37,7 @@ const LoginPage = () => {
       const result = await loginUser(email, password);
 
       localStorage.setItem('token', result.token);
+      localStorage.setItem('refreshToken', result.refreshToken);
       localStorage.setItem('user', JSON.stringify(result.user));
       if (result.user?.idBenhNhan) {
         localStorage.setItem('idBenhNhan', result.user.idBenhNhan);
