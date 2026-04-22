@@ -14,8 +14,21 @@ import DoctorPerformanceTable from '@/components/admin/DoctorPerformanceTable';
 import statisticsService from '@/services/statisticsService';
 
 const ReportPage: React.FC = () => {
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  // Khởi tạo với khoảng thời gian 1 tháng gần đây
+  const getDefaultDateRange = () => {
+    const today = new Date();
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setMonth(today.getMonth() - 1);
+    
+    return {
+      startDate: oneMonthAgo.toISOString().split('T')[0],
+      endDate: today.toISOString().split('T')[0],
+    };
+  };
+
+  const defaultDates = getDefaultDateRange();
+  const [startDate, setStartDate] = useState(defaultDates.startDate);
+  const [endDate, setEndDate] = useState(defaultDates.endDate);
   const [idKhoa, setIdKhoa] = useState<string | null>(null);
   const [period, setPeriod] = useState<"daily" | "weekly" | "monthly" | "custom">("monthly");
 
@@ -29,7 +42,11 @@ const ReportPage: React.FC = () => {
 
   // Gọi API khi filter thay đổi
   const fetchAllData = async () => {
-    if (!startDate || !endDate) return;
+    if (!startDate || !endDate) {
+      console.warn('Thiếu startDate hoặc endDate');
+      return;
+    }
+    
     setLoading(true);
     try {
       const [overviewRes, revenueRes, comparisonRes, doctorShiftRes, deptRes, doctorPerfRes] =
@@ -50,13 +67,22 @@ const ReportPage: React.FC = () => {
       setDoctorPerformance(doctorPerfRes);
     } catch (error) {
       console.error('Lỗi tải báo cáo:', error);
+      // Hiển thị thông báo lỗi cho người dùng
+      setOverview({ bookingCount: 0, depositRevenue: 0, examinationCount: 0, doctorExamCount: 0 });
+      setRevenueData([]);
+      setComparisonData(null);
+      setDoctorShiftData([]);
+      setDepartmentData([]);
+      setDoctorPerformance([]);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchAllData();
+    if (startDate && endDate) {
+      fetchAllData();
+    }
   }, [startDate, endDate, idKhoa]);
 
   return (

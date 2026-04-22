@@ -34,6 +34,7 @@ export default function DoctorPerformanceTable({
               <TableHeader>
                 <TableRow>
                   <TableHead>Tên bác sĩ</TableHead>
+                  <TableHead>Chuyên khoa</TableHead>
                   <TableHead>Khoa</TableHead>
                   <TableHead className="text-right">Số lần khám</TableHead>
                 </TableRow>
@@ -41,15 +42,16 @@ export default function DoctorPerformanceTable({
               <TableBody>
                 {data.length > 0 ? (
                   data.map((doctor) => (
-                    <TableRow key={doctor.doctorId}>
-                      <TableCell className="font-medium">{doctor.doctorName}</TableCell>
-                      <TableCell>{doctor.department}</TableCell>
-                      <TableCell className="text-right">{doctor.examCount}</TableCell>
+                    <TableRow key={doctor.idBacSi}>
+                      <TableCell className="font-medium">{doctor.hoTen}</TableCell>
+                      <TableCell>{doctor.chuyenKhoa}</TableCell>
+                      <TableCell>{doctor.tenKhoa}</TableCell>
+                      <TableCell className="text-right">{doctor.appointmentCount}</TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={3} className="text-center text-muted-foreground">
+                    <TableCell colSpan={4} className="text-center text-muted-foreground">
                       Không có dữ liệu
                     </TableCell>
                   </TableRow>

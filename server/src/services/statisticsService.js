@@ -114,7 +114,7 @@ const getDoctorExamCountByShift = async (fromDate, toDate, idKhoa = null) => {
       .join('Khoa', 'BacSi.idKhoa', 'Khoa.idKhoa')
       .where('LichHen.ngayHen', '>=', fromDate)
       .where('LichHen.ngayHen', '<=', toDate)
-      .whereIn('LichHen.trangThai', ['Đã đến', 'Hoàn thành', 'da_checkin', 'cho_kham'])
+      .whereIn('LichHen.trangThai', ['Đã đến', 'Hoàn thành', 'da_checkin', 'cho_kham', 'da_kham'])
       .groupBy('LichHen.gioHen', 'BacSi.idBacSi', 'BacSi.hoTen', 'Khoa.idKhoa', 'Khoa.tenKhoa')
       .orderBy('LichHen.gioHen');
 

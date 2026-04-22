@@ -34,19 +34,36 @@ export default function ComparisonBarChart({
   data,
   loading = false,
 }: ComparisonBarChartProps) {
+  if (!data || !data.data) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">So sánh doanh thu</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex h-80 items-center justify-center">
+            <p className="text-muted-foreground">Không có dữ liệu</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const { revenue } = data.data;
+  
   const chartData = [
     {
-      name: 'Tháng này',
-      value: data.thisMonth,
+      name: 'Tháng trước',
+      value: revenue.previous,
     },
     {
-      name: 'Tháng trước',
-      value: data.lastMonth,
+      name: 'Tháng này',
+      value: revenue.current,
     },
   ];
 
-  const trend = data.percentChange > 0 ? '↑' : data.percentChange < 0 ? '↓' : '→';
-  const trendColor = getTrendColor(data.percentChange);
+  const trend = revenue.percentChange > 0 ? '↑' : revenue.percentChange < 0 ? '↓' : '→';
+  const trendColor = getTrendColor(revenue.percentChange);
 
   return (
     <Card>
@@ -54,7 +71,7 @@ export default function ComparisonBarChart({
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">So sánh doanh thu</CardTitle>
           <div style={{ color: trendColor }} className="text-sm font-semibold">
-            {trend} {Math.abs(data.percentChange).toFixed(1)}%
+            {trend} {Math.abs(revenue.percentChange).toFixed(1)}%
           </div>
         </div>
       </CardHeader>

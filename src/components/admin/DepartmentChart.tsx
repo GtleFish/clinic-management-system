@@ -26,6 +26,13 @@ const COLORS = [
 ];
 
 export default function DepartmentChart({ data, loading = false }: DepartmentChartProps) {
+  // Transform API data to chart format
+  const chartData = data.map((item) => ({
+    department: item.tenKhoa,
+    patients: parseInt(item.patientCount.toString()),
+    idKhoa: item.idKhoa,
+  }));
+
   return (
     <Card>
       <CardHeader>
@@ -36,11 +43,11 @@ export default function DepartmentChart({ data, loading = false }: DepartmentCha
           <div className="flex h-80 items-center justify-center">
             <p className="text-muted-foreground">Đang tải dữ liệu...</p>
           </div>
-        ) : data.length > 0 ? (
+        ) : chartData.length > 0 ? (
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
-                data={data}
+                data={chartData}
                 cx="50%"
                 cy="50%"
                 labelLine={false}
@@ -49,7 +56,7 @@ export default function DepartmentChart({ data, loading = false }: DepartmentCha
                 fill="#8884d8"
                 dataKey="patients"
               >
-                {data.map((entry, index) => (
+                {chartData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
