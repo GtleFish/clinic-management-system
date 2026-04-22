@@ -172,13 +172,14 @@ const getLichSuKham = async (req, res) => {
     }
 
     const list = await knex("LichSuKham")
-      .leftJoin("BacSiTruong", "LichSuKham.idBacSiTruong", "BacSiTruong.idBacSiTruong")
+      .leftJoin("BacSi", "LichSuKham.idBacSi", "BacSi.idBacSi")
       .select(
         "LichSuKham.idLichSu",
         "LichSuKham.ngayKham",
         "LichSuKham.chanDoan",
         "LichSuKham.huongDieuTri",
-        "BacSiTruong.hoTen as tenBacSiTruong",
+        "BacSi.hoTen as tenBacSi",
+        "BacSi.isTruongKhoa",
       )
       .where("LichSuKham.idBenhNhan", idBenhNhan)
       .orderBy("LichSuKham.ngayKham", "desc");

@@ -37,6 +37,9 @@ class AuthService {
 
     let hoTen = user.username;
     let idBenhNhan = null;
+    let idBacSi = null;
+    let isTruongKhoa = false;
+    let idKhoa = null;
 
     try {
       const currentRole = user.role ? user.role.toUpperCase() : '';
@@ -45,6 +48,14 @@ class AuthService {
         if (patient) {
           hoTen = patient.hoTen;
           idBenhNhan = patient.idBenhNhan;
+        }
+      } else if (currentRole === 'BACSI') {
+        const bacSi = await knex('BacSi').where({ idUser: user.idUser }).first();
+        if (bacSi) {
+          hoTen = bacSi.hoTen;
+          idBacSi = bacSi.idBacSi;
+          isTruongKhoa = !!bacSi.isTruongKhoa;
+          idKhoa = bacSi.idKhoa;
         }
       }
     } catch (error) {
@@ -68,6 +79,7 @@ class AuthService {
         username: user.username,
         hoTen,
         ...(idBenhNhan && { idBenhNhan }),
+        ...(idBacSi && { idBacSi, isTruongKhoa, idKhoa }),
       }
     };
   }
