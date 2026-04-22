@@ -20,7 +20,10 @@ const authenticate = (req, res, next) => {
     req.user = decoded; // { idUser, role, username }
     next();
   } catch (err) {
-    return res.status(401).json({ message: 'Token không hợp lệ hoặc đã hết hạn' });
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ message: 'Token đã hết hạn', code: 'TOKEN_EXPIRED' });
+    }
+    return res.status(401).json({ message: 'Token không hợp lệ' });
   }
 };
 

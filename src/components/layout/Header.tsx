@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, Calendar, User, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
+import { logoutUser } from '@/lib/apiAuth';
 
 const navItems = [
   { label: 'Trang chủ',     path: '/' },
@@ -45,13 +46,16 @@ const Header = () => {
   useEffect(() => {
     setMobileOpen(false);
   }, [location.pathname]);
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await logoutUser();
     localStorage.removeItem("token");
+    localStorage.removeItem("refreshToken");
     localStorage.removeItem("user");
+    localStorage.removeItem("idBenhNhan");
     localStorage.removeItem("patientProfile");
     setIsLoggedIn(false);
     setUserName('Tài khoản');
-    navigate("/login"); // ✅ không reload trang
+    navigate("/login");
   };
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-card/80 backdrop-blur-xl">
