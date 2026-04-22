@@ -12,7 +12,6 @@ exports.seed = async function(knex) {
   // Bỏ FK Khoa.idBacSi tạm để xóa được
   await knex.raw('SET FOREIGN_KEY_CHECKS = 0');
   await knex('BacSi').del();
-  await knex('BacSiTruong').del();
   await knex('Khoa').del();
   await knex('admin').del();
   await knex('users').del();
@@ -20,11 +19,20 @@ exports.seed = async function(knex) {
 
   // ── users ─────────────────────────────────────
   await knex('users').insert([
-    { idUser: 'USR-ADMIN-001', role: 'admin',       username: 'admin@gmail.com',      password: hash('Admin@123') },
-    { idUser: 'USR-NV-001',    role: 'nhanvien',    username: 'nhanvien@gmail.com',   password: hash('Nv@123')    },
-    { idUser: 'USR-BS-001',    role: 'bacsi',       username: 'bs_tim@gmail.com',     password: hash('Bs@123')    },
-    { idUser: 'USR-BS-002',    role: 'bacsi',       username: 'bs_xuong@gmail.com',   password: hash('Bs@123')    },
-    { idUser: 'USR-BN-001',    role: 'benhnhan',    username: 'benhnhan01@gmail.com', password: hash('Bn@123')    },
+    { idUser: 'USR-ADMIN-001', role: 'admin',    username: 'admin@gmail.com',      password: hash('Admin@123') },
+    { idUser: 'USR-NV-001',    role: 'nhanvien', username: 'nhanvien@gmail.com',   password: hash('Nv@123')    },
+    // Bác sĩ trưởng khoa
+    { idUser: 'USR-BS-001',    role: 'bacsi',    username: 'bs_noi@gmail.com',     password: hash('Bs@123')    }, // BS-001 Nguyễn Văn An — Trưởng Nội khoa
+    { idUser: 'USR-BS-003',    role: 'bacsi',    username: 'bs_ngoai@gmail.com',   password: hash('Bs@123')    }, // BS-003 Lê Minh Cường — Trưởng Ngoại khoa
+    { idUser: 'USR-BS-005',    role: 'bacsi',    username: 'bs_nhi@gmail.com',     password: hash('Bs@123')    }, // BS-005 Hoàng Văn Em — Trưởng Nhi khoa
+    // Bác sĩ thường
+    { idUser: 'USR-BS-002',    role: 'bacsi',    username: 'bs_tieuhoa@gmail.com', password: hash('Bs@123')    }, // BS-002 Trần Thị Bình
+    { idUser: 'USR-BS-004',    role: 'bacsi',    username: 'bs_san@gmail.com',     password: hash('Bs@123')    }, // BS-004 Phạm Thu Dung
+    { idUser: 'USR-BS-006',    role: 'bacsi',    username: 'bs_dalieu@gmail.com',  password: hash('Bs@123')    }, // BS-006 Vũ Thị Fương
+    { idUser: 'USR-BS-007',    role: 'bacsi',    username: 'bs_mat@gmail.com',     password: hash('Bs@123')    }, // BS-007 Đỗ Quang Giang
+    { idUser: 'USR-BS-008',    role: 'bacsi',    username: 'bs_tmh@gmail.com',     password: hash('Bs@123')    }, // BS-008 Ngô Thanh Hà
+    // Bệnh nhân
+    { idUser: 'USR-BN-001',    role: 'benhnhan', username: 'benhnhan01@gmail.com', password: hash('Bn@123')    },
   ]);
 
   // ── admin ─────────────────────────────────────
@@ -43,25 +51,23 @@ exports.seed = async function(knex) {
     { idKhoa: 'dept-7', idBacSi: null, tenKhoa: 'Tai Mũi Họng', moTa: 'Khám và điều trị tai, mũi, họng' }
   ]);
 
-  // ── BacSiTruong ───────────────────────────────
-  await knex('BacSiTruong').insert([
-    { idBacSiTruong: 'BST-001', hoTen: 'PGS.TS Nguyễn Văn An', phuCap: 5000000 },
-  ]);
-
   // ── BacSi (Dữ liệu 8 Bác sĩ chuẩn cho Frontend) ─────────────────────────────────────
+  // BS-001, BS-003, BS-005 là trưởng khoa
   await knex('BacSi').insert([
-    { idBacSi: 'BS-001', idKhoa: 'dept-1', hoTen: 'BS. Nguyễn Văn An', chuyenKhoa: 'Tim mạch', namKinhNghiem: 15 },
-    { idBacSi: 'BS-002', idKhoa: 'dept-1', hoTen: 'BS. Trần Thị Bình', chuyenKhoa: 'Tiêu hóa', namKinhNghiem: 10 },
-    { idBacSi: 'BS-003', idKhoa: 'dept-2', hoTen: 'BS. Lê Minh Cường', chuyenKhoa: 'Phẫu thuật tổng quát', namKinhNghiem: 20 },
-    { idBacSi: 'BS-004', idKhoa: 'dept-3', hoTen: 'BS. Phạm Thu Dung', chuyenKhoa: 'Sản khoa', namKinhNghiem: 12 },
-    { idBacSi: 'BS-005', idKhoa: 'dept-4', hoTen: 'BS. Hoàng Văn Em', chuyenKhoa: 'Nhi tổng quát', namKinhNghiem: 18 },
-    { idBacSi: 'BS-006', idKhoa: 'dept-5', hoTen: 'BS. Vũ Thị Fương', chuyenKhoa: 'Da liễu thẩm mỹ', namKinhNghiem: 8 },
-    { idBacSi: 'BS-007', idKhoa: 'dept-6', hoTen: 'BS. Đỗ Quang Giang', chuyenKhoa: 'Phẫu thuật mắt', namKinhNghiem: 14 },
-    { idBacSi: 'BS-008', idKhoa: 'dept-7', hoTen: 'BS. Ngô Thanh Hà', chuyenKhoa: 'Tai mũi họng', namKinhNghiem: 9 }
+    { idBacSi: 'BS-001', idKhoa: 'dept-1', hoTen: 'Nguyễn Văn An',    chuyenKhoa: 'Tim mạch',              namKinhNghiem: 15, isTruongKhoa: true,  phuCap: 5000000, idUser: 'USR-BS-001' },
+    { idBacSi: 'BS-002', idKhoa: 'dept-1', hoTen: 'Trần Thị Bình',    chuyenKhoa: 'Tiêu hóa',              namKinhNghiem: 10, isTruongKhoa: false, phuCap: 0,       idUser: 'USR-BS-002' },
+    { idBacSi: 'BS-003', idKhoa: 'dept-2', hoTen: 'Lê Minh Cường',    chuyenKhoa: 'Phẫu thuật tổng quát', namKinhNghiem: 20, isTruongKhoa: true,  phuCap: 6000000, idUser: 'USR-BS-003' },
+    { idBacSi: 'BS-004', idKhoa: 'dept-3', hoTen: 'Phạm Thu Dung',    chuyenKhoa: 'Sản khoa',              namKinhNghiem: 12, isTruongKhoa: false, phuCap: 0,       idUser: 'USR-BS-004' },
+    { idBacSi: 'BS-005', idKhoa: 'dept-4', hoTen: 'Hoàng Văn Em',     chuyenKhoa: 'Nhi tổng quát',         namKinhNghiem: 18, isTruongKhoa: true,  phuCap: 5500000, idUser: 'USR-BS-005' },
+    { idBacSi: 'BS-006', idKhoa: 'dept-5', hoTen: 'Vũ Thị Fương',     chuyenKhoa: 'Da liễu thẩm mỹ',      namKinhNghiem: 8,  isTruongKhoa: false, phuCap: 0,       idUser: 'USR-BS-006' },
+    { idBacSi: 'BS-007', idKhoa: 'dept-6', hoTen: 'Đỗ Quang Giang',   chuyenKhoa: 'Phẫu thuật mắt',       namKinhNghiem: 14, isTruongKhoa: false, phuCap: 0,       idUser: 'USR-BS-007' },
+    { idBacSi: 'BS-008', idKhoa: 'dept-7', hoTen: 'Ngô Thanh Hà',     chuyenKhoa: 'Tai mũi họng',          namKinhNghiem: 9,  isTruongKhoa: false, phuCap: 0,       idUser: 'USR-BS-008' },
   ]);
 
-  // ── Cập nhật Khoa.idBacSi (Cho BS-001 làm trưởng Nội khoa)
-  await knex('Khoa').where({ idKhoa: 'dept-1' }).update({ idBacSi: 'BS-001' });
+  // ── Cập nhật Khoa.idBacSi (trưởng khoa)
+  await knex('Khoa').where({ idKhoa: 'dept-1' }).update({ idBacSi: 'BS-001' }); // Nội khoa
+  await knex('Khoa').where({ idKhoa: 'dept-2' }).update({ idBacSi: 'BS-003' }); // Ngoại khoa
+  await knex('Khoa').where({ idKhoa: 'dept-4' }).update({ idBacSi: 'BS-005' }); // Nhi khoa
 
   // ── NhanVien ──────────────────────────────────
   await knex('NhanVien').insert([
@@ -105,29 +111,31 @@ exports.seed = async function(knex) {
       chanDoan:       'Hở van tim nhẹ độ 1',
       huongDieuTri:   'Uống thuốc theo đơn, tái khám sau 1 tháng',
       idBenhNhan:     'BN-001',
-      idBacSiTruong:  'BST-001',
+      idBacSi:        'BS-001', // Bác sĩ trưởng khoa Nội khoa
+      trangThai:      'APPROVED',
+      approvedByDoctorId: 'BS-001',
     },
   ]);
 
   // ── DonThuoc ──────────────────────────────────
   await knex('DonThuoc').insert([
     {
-      idDonThuoc:    'DT-001',
-      tenThuoc:      'Aspirin 100mg',
-      soLuong:       30,
-      lieuLuong:     '1 viên/ngày sau ăn sáng',
-      ngayKeDon:     '2026-03-10',
-      idBacSiTruong: 'BST-001',
-      idLichSu:      'LSK-001',
+      idDonThuoc:          'DT-001',
+      tenThuoc:            'Aspirin 100mg',
+      soLuong:             30,
+      lieuLuong:           '1 viên/ngày sau ăn sáng',
+      ngayKeDon:           '2026-03-10',
+      approvedByDoctorId:  'BS-001',
+      idLichSu:            'LSK-001',
     },
     {
-      idDonThuoc:    'DT-002',
-      tenThuoc:      'Amlodipine 5mg',
-      soLuong:       30,
-      lieuLuong:     '1 viên/ngày buổi tối',
-      ngayKeDon:     '2026-03-10',
-      idBacSiTruong: 'BST-001',
-      idLichSu:      'LSK-001',
+      idDonThuoc:          'DT-002',
+      tenThuoc:            'Amlodipine 5mg',
+      soLuong:             30,
+      lieuLuong:           '1 viên/ngày buổi tối',
+      ngayKeDon:           '2026-03-10',
+      approvedByDoctorId:  'BS-001',
+      idLichSu:            'LSK-001',
     },
   ]);
 

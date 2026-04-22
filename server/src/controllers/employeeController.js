@@ -16,7 +16,8 @@ const getBenhNhan = async (req, res) => {
       .modify(qb => {
         if (search) {
           qb.where('hoTen', 'like', `%${search}%`)
-            .orWhere('sdt',   'like', `%${search}%`);
+            .orWhere('sdt',   'like', `%${search}%`)
+            .orWhere('cccd',  'like', `%${search}%`);
         }
       })
       .orderBy('hoTen');
