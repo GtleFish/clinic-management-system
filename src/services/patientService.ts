@@ -21,3 +21,9 @@ export const getPatientHistory = (email: string) =>
 
 export const getBookingCounts = (date: string) =>
   api.get(`/patient/booking/counts?date=${date}`).then((r) => r.data);
+
+export const getDanhSachKhoa = () =>
+  api.get('/patient/khoa').then((r) => r.data);
+
+export const getDanhSachBacSi = () =>
+  api.get('/patient/bacsi').then((r) => r.data);
