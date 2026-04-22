@@ -63,8 +63,8 @@ export default function FilterBar({
     const fetchDepartments = async () => {
       try {
         setLoadingDepts(true);
-        const response = await api.get('/api/admin/khoa');
-        setDepts(response.data || []);
+        const response = await api.get('/admin/khoa');
+        setDepts(response.data?.data || []);
       } catch (error) {
         console.error('Lỗi tải danh sách khoa:', error);
         setDepts(departments);
