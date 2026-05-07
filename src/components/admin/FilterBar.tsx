@@ -75,7 +75,7 @@ export default function FilterBar({
     fetchDepartments();
   }, [departments]);
 
-  // Initialize with monthly date range
+  // Initialize with monthly date range (chỉ chạy 1 lần khi mount)
   useEffect(() => {
     const dateRange = getDateRange("monthly");
     if (dateRange) {
@@ -83,7 +83,8 @@ export default function FilterBar({
       setToDate(dateRange.toDate);
       onDateRangeChange(dateRange.fromDate, dateRange.toDate);
     }
-  }, [onDateRangeChange]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Chỉ chạy 1 lần khi component mount
 
   const handlePeriodChange = (newPeriod: "daily" | "weekly" | "monthly") => {
     setPeriod(newPeriod);

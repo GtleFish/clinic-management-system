@@ -1,4 +1,8 @@
 exports.seed = async function (knex) {
+  console.log('\n🌱 ═════════════════════════════════════════');
+  console.log('🌱 Bắt đầu seed dữ liệu bệnh nhân...');
+  console.log('🌱 ═════════════════════════════════════════\n');
+
   const patientNames = [
     'Nguyễn Văn A',
     'Trần Thị B',
@@ -12,32 +16,58 @@ exports.seed = async function (knex) {
     'Tô Như J',
   ];
 
+  let insertedCount = 0;
+
   for (const name of patientNames) {
-    const exists = await knex('BenhNhan').where({ hoTen: name }).first();
+    try {
+      const exists = await knex('BenhNhan').where({ hoTen: name }).first();
 
-    if (!exists) {
-      const cccd = `${Math.random().toString().substring(2, 14)}`.padEnd(12, '0');
+      if (!exists) {
+        // Sinh CCCD ngẫu nhiên (12 chữ số)
+        const cccd = Math.floor(Math.random() * 999999999999)
+          .toString()
+          .padStart(12, '0');
 
-      const birthDate = new Date(
-        1975 + Math.floor(Math.random() * 40),
-        Math.floor(Math.random() * 12),
-        1 + Math.floor(Math.random() * 28)
-      );
+        // Sinh ngày sinh ngẫu nhiên (từ 1975 đến 2010)
+        const birthDate = new Date(
+          1975 + Math.floor(Math.random() * 35),
+          Math.floor(Math.random() * 12),
+          1 + Math.floor(Math.random() * 28)
+        );
 
-      await knex('BenhNhan').insert({
-        idBenhNhan: `BN-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
-        cccd: cccd,
-        hoTen: name,
-        gioiTinh: Math.random() > 0.5 ? 'Nam' : 'Nữ',
-        ngaySinh: birthDate.toISOString().split('T')[0],
-        tuoi: new Date().getFullYear() - birthDate.getFullYear(),
-        gmail: `${name.toLowerCase().replace(/ /g, '')}@gmail.com`,
-        sdt: `0${Math.floor(Math.random() * 900000000) + 100000000}`,
-        soBaoHiem: null,
-        benhNen: null,
-      });
+        // Tính tuổi
+        const currentYear = new Date().getFullYear();
+        const birthYear = birthDate.getFullYear();
+        const age = currentYear - birthYear;
+
+        // Sinh ID bệnh nhân ngẫu nhiên
+        const randomId = Math.random().toString(36).substring(2, 8).toUpperCase();
+        const idBenhNhan = `BN-${randomId}`;
+
+        await knex('BenhNhan').insert({
+          idBenhNhan: idBenhNhan,
+          cccd: cccd,
+          hoTen: name,
+          gioiTinh: Math.random() > 0.5 ? 'Nam' : 'Nữ',
+          ngaySinh: birthDate.toISOString().split('T')[0],
+          tuoi: age,
+          gmail: `${name.toLowerCase().replace(/ /g, '')}@gmail.com`,
+          sdt: `0${Math.floor(Math.random() * 900000000) + 100000000}`,
+          soBaoHiem: Math.random() > 0.3 ? `BH${Math.floor(Math.random() * 1000000000)}` : null,
+          benhNen: Math.random() > 0.5 ? 'Tiểu đường' : null,
+        });
+
+        insertedCount++;
+        console.log(`  ✓ Thêm bệnh nhân: ${name} (ID: ${idBenhNhan})`);
+      } else {
+        console.log(`  ⊘ Bệnh nhân đã tồn tại: ${name}`);
+      }
+    } catch (error) {
+      console.error(`  ✗ Lỗi thêm ${name}:`, error.message);
     }
   }
 
-  console.log(' Seed BenhNhan thành công');
+  console.log(`\n✅ ═════════════════════════════════════════`);
+  console.log(`✅ Seed ${insertedCount} bệnh nhân thành công!`);
+  console.log(`✅ ═════════════════════════════════════════\n`);
 };

@@ -230,16 +230,17 @@ const getKhoa = async (req, res) => {
   }
 };
 /**
- * Lấy danh sách lịch hẹn hôm nay (kèm tên bệnh nhân, bác sĩ, khoa)
+ * Lấy danh sách lịch hẹn hôm nay (kèm tên bệnh nhân, bác sĩ, khoa, thông tin thanh toán)
  * GET /api/admin/lich-hen/hom-nay
  */
 const getTatCaLichHen = async (req, res) => {
   try {
     const today = new Date().toISOString().slice(0, 10);
     const lichHenList = await knex('LichHen')
-      .join('BenhNhan', 'LichHen.idBenhNhan', 'BenhNhan.idBenhNhan')
-      .join('BacSi', 'LichHen.idBacSi', 'BacSi.idBacSi')
-      .join('Khoa', 'BacSi.idKhoa', 'Khoa.idKhoa')
+      .leftJoin('BenhNhan', 'LichHen.idBenhNhan', 'BenhNhan.idBenhNhan')
+      .leftJoin('BacSi', 'LichHen.idBacSi', 'BacSi.idBacSi')
+      .leftJoin('Khoa', 'BacSi.idKhoa', 'Khoa.idKhoa')
+      .leftJoin('ThanhToan', 'LichHen.idLichHen', 'ThanhToan.idLichHen')
       .select(
         'LichHen.idLichHen',
         'LichHen.ngayHen',
@@ -248,7 +249,10 @@ const getTatCaLichHen = async (req, res) => {
         'BenhNhan.hoTen as hoTenBenhNhan',
         'BenhNhan.sdt as soDienThoai',
         'BacSi.hoTen as hoTenBacSi',
-        'Khoa.tenKhoa'
+        'Khoa.tenKhoa',
+        'ThanhToan.idThanhToan',
+        'ThanhToan.soTienCoc',
+        'ThanhToan.trangThai as trangThaiThanhToan'
       )
       .orderBy('LichHen.ngayHen', 'desc') 
       .orderBy('LichHen.gioHen', 'asc');
@@ -260,29 +264,131 @@ const getTatCaLichHen = async (req, res) => {
   }
 };
 /**
+ * Lấy thông tin thanh toán của lịch hẹn
+ * GET /api/admin/lich-hen/:idLichHen/thanh-toan
+ */
+const getPaymentByLichHen = async (req, res) => {
+  const { idLichHen } = req.params;
+  
+  try {
+    const payment = await knex('ThanhToan')
+      .where({ idLichHen })
+      .first();
+
+    if (!payment) {
+      return res.status(404).json({ 
+        message: 'Chưa có thông tin thanh toán cho lịch hẹn này',
+        hasPayment: false,
+      });
+    }
+
+    return res.status(200).json({ 
+      hasPayment: true,
+      data: payment,
+    });
+  } catch (err) {
+    console.error('getPaymentByLichHen error:', err);
+    return res.status(500).json({ message: 'Lỗi server, vui lòng thử lại' });
+  }
+};
+
+/**
  * Check-in lịch hẹn
  * PATCH /api/admin/lich-hen/:idLichHen/checkin
+ * Body (optional): { soTienCoc: number }
  */
 const checkInLichHen = async (req, res) => {
   const { idLichHen } = req.params;
+  const { soTienCoc } = req.body || {}; // Số tiền cọc tùy chỉnh (optional)
+  
   try {
+    // Lấy thông tin lịch hẹn
     const lichHen = await knex('LichHen').where({ idLichHen }).first();
     if (!lichHen) {
       return res.status(404).json({ message: 'Không tìm thấy lịch hẹn' });
     }
+    
+    // Kiểm tra trạng thái
     if (lichHen.trangThai === 'huy') {
       return res.status(400).json({ message: 'Lịch hẹn đã bị hủy' });
     }
-    if (lichHen.trangThai === 'da_checkin') {
+    if (lichHen.trangThai === 'da_checkin' || lichHen.trangThai === 'cho_kham') {
       return res.status(400).json({ message: 'Lịch hẹn đã được check-in' });
     }
- 
-    await knex('LichHen').where({ idLichHen }).update({ trangThai: 'cho_kham' });
- 
-    return res.status(200).json({ message: 'Check-in thành công (Đang chờ khám)' });
+
+    // Validate số tiền cọc nếu có
+    const depositAmount = soTienCoc ? parseFloat(soTienCoc) : 300000; // Mặc định 300k
+    if (isNaN(depositAmount) || depositAmount < 0) {
+      return res.status(400).json({ message: 'Số tiền cọc không hợp lệ' });
+    }
+
+    // Sử dụng transaction để đảm bảo tính nhất quán
+    let paymentInfo = null;
+    
+    await knex.transaction(async (trx) => {
+      // 1. Cập nhật trạng thái lịch hẹn
+      await trx('LichHen').where({ idLichHen }).update({ trangThai: 'cho_kham' });
+
+      // 2. Kiểm tra xem đã có thanh toán chưa
+      const existingPayment = await trx('ThanhToan')
+        .where({ idLichHen })
+        .first();
+
+      if (existingPayment) {
+        // Nếu đã có thanh toán, cập nhật trạng thái và số tiền
+        await trx('ThanhToan')
+          .where({ idThanhToan: existingPayment.idThanhToan })
+          .update({ 
+            trangThai: 'da_coc',
+            soTienCoc: depositAmount,
+            ngayThanhToan: knex.fn.now(),
+            ghiChu: soTienCoc 
+              ? `Tiền cọc ${depositAmount.toLocaleString('vi-VN')}đ khi check-in`
+              : 'Tiền cọc tự động khi check-in',
+          });
+        
+        paymentInfo = {
+          idThanhToan: existingPayment.idThanhToan,
+          soTienCoc: depositAmount,
+          isNew: false,
+        };
+      } else {
+        // Nếu chưa có thanh toán, tạo mới
+        const newPaymentId = `TT-${uuidv4().slice(0, 8).toUpperCase()}`;
+
+        await trx('ThanhToan').insert({
+          idThanhToan: newPaymentId,
+          idBenhNhan: lichHen.idBenhNhan,
+          idLichHen: lichHen.idLichHen,
+          soTienCoc: depositAmount,
+          loaiThanhToan: 'khi_den_kham',
+          trangThai: 'da_coc',
+          ngayTao: knex.fn.now(),
+          ngayThanhToan: knex.fn.now(),
+          ghiChu: soTienCoc 
+            ? `Tiền cọc ${depositAmount.toLocaleString('vi-VN')}đ khi check-in`
+            : 'Tiền cọc tự động khi check-in',
+        });
+
+        paymentInfo = {
+          idThanhToan: newPaymentId,
+          soTienCoc: depositAmount,
+          isNew: true,
+        };
+      }
+    });
+
+    return res.status(200).json({ 
+      message: 'Check-in thành công. Tiền cọc đã được ghi nhận vào doanh thu.',
+      payment: paymentInfo,
+    });
   } catch (err) {
     console.error('checkInLichHen error:', err);
-    return res.status(500).json({ message: 'Lỗi server, vui lòng thử lại' });
+    console.error('Error stack:', err.stack);
+    return res.status(500).json({ 
+      message: 'Lỗi server, vui lòng thử lại',
+      error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
   }
 };
  
@@ -550,6 +656,7 @@ module.exports = {
   getKhoa,
   // check-in
   getTatCaLichHen,
+  getPaymentByLichHen,
   checkInLichHen,
   huyLichHen,
   doiLichXuongCuoi,

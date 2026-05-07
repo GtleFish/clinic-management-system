@@ -17,18 +17,12 @@ interface DoctorShiftChartProps {
 }
 
 export default function DoctorShiftChart({ data, loading = false }: DoctorShiftChartProps) {
-  const shiftLabels: Record<string, string> = {
-    sang: 'Sáng',
-    chieu: 'Chiều',
-    toi: 'Tối',
-    ca1: 'Ca 1',
-    ca2: 'Ca 2',
-    ca3: 'Ca 3',
-  };
-
+  // Transform API data to chart format
   const chartData = data.map((item) => ({
-    ...item,
-    shiftName: shiftLabels[item.shift] || item.shift,
+    shiftName: item.gioHen, // Sử dụng giờ hẹn làm tên ca
+    count: parseInt(item.examCount.toString()), // Số lần khám
+    doctorName: item.hoTen,
+    department: item.tenKhoa,
   }));
 
   return (

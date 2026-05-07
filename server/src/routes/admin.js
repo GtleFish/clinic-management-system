@@ -11,6 +11,7 @@ const {
   deleteDoctor,
   getKhoa,
   getTatCaLichHen,
+  getPaymentByLichHen,
   checkInLichHen,
   huyLichHen,
   doiLichXuongCuoi,
@@ -41,6 +42,7 @@ router.get   ('/doctors/:idBacSi', getDoctorById);
 router.put   ('/doctors/:idBacSi', validateUpdateDoctor, updateDoctor);
 router.delete('/doctors/:idBacSi', deleteDoctor);
 router.get  ('/lich-hen/all',              getTatCaLichHen);
+router.get  ('/lich-hen/:idLichHen/thanh-toan', getPaymentByLichHen);
 router.patch('/lich-hen/:idLichHen/checkin',   checkInLichHen);
 router.patch('/lich-hen/:idLichHen/huy',       huyLichHen);
 router.patch('/lich-hen/:idLichHen/doi-cuoi',  doiLichXuongCuoi);
