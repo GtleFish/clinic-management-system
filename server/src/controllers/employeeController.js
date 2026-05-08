@@ -228,7 +228,7 @@ const checkIn = async (req, res) => {
       return res.status(404).json({ message: "Không tìm thấy lịch hẹn" });
     }
 
-    const validStatuses = ["Đã đặt lịch", "Đã xác nhận"];
+    const validStatuses = ["Đã đặt lịch", "Đã xác nhận", "da_dat"];
     if (!validStatuses.includes(lichHen.trangThai)) {
       return res.status(400).json({
         message: "Lịch hẹn không thể check-in ở trạng thái hiện tại",

@@ -1,14 +1,15 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff, User, Phone, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { motion } from "framer-motion";
 import { registerPatient } from "@/lib/apiPatient";
 
 const RegisterPage = () => {
-
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
 
   const [form, setForm] = useState({
@@ -53,20 +54,9 @@ const RegisterPage = () => {
 
       await registerPatient(data);
 
-      alert("Đăng ký thành công");
+      alert("Đăng ký thành công! Vui lòng đăng nhập.");
 
-      setForm({
-        hoTen: "",
-        cccd: "",
-        gioiTinh: "",
-        ngaySinh: "",
-        gmail: "",
-        sdt: "",
-        soBaoHiem: "",
-        benhNen: "",
-        password: "",
-        confirmPassword: ""
-      });
+      navigate("/login");
 
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -134,12 +124,19 @@ const RegisterPage = () => {
             {/* Giới tính */}
             <div className="space-y-2">
               <Label>Giới tính</Label>
-              <Input
-                placeholder="Nam / Nữ"
+              <Select
                 value={form.gioiTinh}
-                onChange={handleChange("gioiTinh")}
-                required
-              />
+                onValueChange={(v) => setForm((prev) => ({ ...prev, gioiTinh: v }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Chọn giới tính" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Nam">Nam</SelectItem>
+                  <SelectItem value="Nữ">Nữ</SelectItem>
+                  <SelectItem value="Khác">Khác</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Ngày sinh */}
