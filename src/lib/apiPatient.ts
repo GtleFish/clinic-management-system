@@ -1,8 +1,8 @@
 import { Patient } from "@/types/patient";
 
 export const registerPatient = async (data: Patient) => {
-
-  const response = await fetch("http://localhost:3000/api/benhnhan/register", {
+  //const response = await fetch("http://localhost:3000/api/benhnhan/register", {
+  const response = await fetch("https://clinic-backend-ncvc.onrender.com/api/benhnhan/register", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -20,7 +20,7 @@ export const registerPatient = async (data: Patient) => {
 };
 export const getMyProfile = async () => {
   const token = localStorage.getItem("token");
-  const res = await fetch("http://localhost:3000/api/benhnhan/profile", {
+  const res = await fetch("https://clinic-backend-ncvc.onrender.com/api/benhnhan/profile", {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -31,7 +31,7 @@ export const getMyProfile = async () => {
 };
 export const updatePatient = async (idUser: string, data: object) => {
   const token = localStorage.getItem("token");
-  const res = await fetch(`http://localhost:3000/api/benhnhan/update/${idUser}`, {
+  const res = await fetch(`https://clinic-backend-ncvc.onrender.com/api/benhnhan/update/${idUser}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -46,7 +46,7 @@ export const updatePatient = async (idUser: string, data: object) => {
 
 export const changePassword = async (idUser: string, data: { oldPassword: string; newPassword: string }) => {
   const token = localStorage.getItem("token");
-  const res = await fetch(`http://localhost:3000/api/benhnhan/change-password/${idUser}`, {
+  const res = await fetch(`https://clinic-backend-ncvc.onrender.com/api/benhnhan/change-password/${idUser}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
