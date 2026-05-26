@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || 'const API_URL = import.meta.env.VITE_API_URL || 'https://clinic-backend-ncvc.onrender.com/api';';
+const API_URL = import.meta.env.VITE_API_URL || 'https://clinic-backend-ncvc.onrender.com/api';
 
 export const loginUser = async (username: string, password: string) => {
   const res = await fetch(`${API_URL}/auth/login`, {
